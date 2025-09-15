@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Salón PWA – Citas & Servicios</title>
+<meta name="theme-color" content="#0e1a24">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Crect width='100%25' height='100%25' fill='%230e1a24'/%3E%3Ctext x='50%25' y='55%25' text-anchor='middle' font-size='34' fill='%23ffffff' font-family='system-ui'%3E💇%3C/text%3E%3C/svg%3E">
+<style>
+  :root{
+    /* Colores editables desde Configuración */
+    --bg:#0e1a24;
+    --panel:#102332;
+    --panel-2:#0c1e2a;
+    --ink:#e7f2fb;
+    --muted:#a6bdcc;
+    --accent:#43c2ff;
+    --ok:#32d296;
+    --warn:#ffcf44;
+    --danger:#ff5678;
+    --line:#163042;
+    --btn:#143a50;
+    --btn-ink:#e7f2fb;
+    --topbar:#0b1620;
+    --footer:#0b1620;
+    --link:#7fd3ff;
+
+    --radius:14px;
+    --shadow:0 10px 28px rgba(0,0,0,.28);
+    --font: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;
+    font:15px/1.45 var(--font);
+    color:var(--ink);
+    background:
+      radial-gradient(1200px 800px at 10% -10%, #112435, transparent 60%),
+      radial-gradient(1200px 800px at 90% -10%, #0a1a28, transparent 60%),
+      var(--bg);
+  }
+  a{color:var(--link);text-decoration:none}
+  .topbar{
+    position:sticky;top:0;z-index:5;
+    display:flex;align-items:center;gap:10px;
+    padding:10px 14px;background:var(--topbar);border-bottom:1px solid var(--line);
+  }
+  .topbar .logos{display:flex;align-items:center;gap:10px}
+  .topbar img{height:36px;object-fit:contain}
+  .topbar .title{font-weight:700}
+  .topbar .spacer{flex:1}
+  .btn{display:inline-flex;align-items:center;gap:10px;padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:var(--btn);color:var(--btn-ink);cursor:pointer;box-shadow:var(--shadow);transition:.2s}
+  .btn:hover{transform:translateY(-1px)}
+  .icon{width:20px;height:20px;display:inline-block}
+  .wrap{max-width:1100px;margin:20px auto;padding:0 14px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin:14px 0;box-shadow:var(--shadow)}
+  .grid{display:grid;gap:14px}
+  .grid.cols-1{grid-template-columns:1fr}
+  .grid.cols-2{grid-template-columns:repeat(2,1fr)}
+  .grid.cols-3{grid-template-columns:repeat(3,1fr)}
+  @media(max-width:900px){.grid.cols-3{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:640px){.grid.cols-2,.grid.cols-3{grid-template-columns:1fr}}
+  .menu .btn{justify-content:flex-start}
+  .muted{color:var(--muted);font-size:.95rem}
+  label{display:block;margin:.6rem 0 .3rem}
+  input,select,textarea{
+    width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--line);
+    background:var(--panel-2);color:var(--ink)
+  }
+  textarea{min-height:110px;resize:vertical}
+  .row{display:flex;gap:10px;flex-wrap:wrap}
+  .row>*{flex:1}
+  .chip{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--panel-2);padding:6px 10px;border-radius:999px}
+  .table{width:100%;border-collapse:collapse;margin-top:10px;font-size:.95rem}
+  .table th,.table td{border-bottom:1px solid var(--line);padding:10px 8px;text-align:left;vertical-align:top}
+  .table th{color:var(--muted);font-weight:600}
+  .actions{display:flex;gap:8px;flex-wrap:wrap}
+  .danger{background:linear-gradient(#2a0f16,#2a0f16);border-color:#5b2631}
+  .ok{background:linear-gradient(#0f2a1c,#0f2a1c);border-color:#2d6a4f}
+  .warn{background:linear-gradient(#2a270f,#2a270f);border-color:#6a662d}
+  .right{margin-left:auto}
+  .footer{padding:16px;background:var(--footer);border-top:1px solid var(--line);display:flex;align-items:center;gap:10px;justify-content:space-between;margin-top:40px}
+  .footer img{height:26px}
+  .hidden{display:none !important}
+  .pill{padding:2px 8px;border-radius:999px;border:1px solid var(--line);background:var(--panel-2)}
+  .small{font-size:.88rem}
+  .top-note{margin:12px 0 0}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="logos">
+    <img id="logoHeader" alt="Logo Salón" src="">
+    <span class="title" id="salonName">Salón de Belleza</span>
+  </div>
+  <div class="spacer"></div>
+  <button class="btn" id="btnDashboard" data-route="dashboard">
+    <svg class="icon" viewBox="0 0 24 24" fill="currentColor"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
+    Dashboard
+  </button>
+</header>
+
+<main class="wrap">
+  <!-- LOGIN -->
+  <section id="view-login" class="card">
+    <h2>Acceso</h2>
+    <p class="muted">Múltiples usuarios con rol <span class="pill">admin</span> o <span class="pill">regular</span>. (Solo admin ve Configuración, Rendimiento y Hoja de Cuadre)</p>
+    <div class="row">
+      <div>
+        <label>Usuario</label><input id="loginUser" placeholder="ej. ana"/>
+      </div>
+      <div>
+        <label>Contraseña</label><input id="loginPass" type="password" placeholder="••••••"/>
+      </div>
+    </div>
+    <div class="actions" style="margin-top:10px">
+      <button class="btn ok" id="btnLogin">Entrar</button>
+      <button class="btn" id="btnSeed">Crear usuario admin demo</button>
+    </div>
+    <p class="top-note small muted">Tip: crea usuarios/roles en <b>Configuración &gt; Usuarios</b>.</p>
+  </section>
+
+  <!-- DASHBOARD / MENÚ EN LISTA CON ÍCONOS -->
+  <section id="view-dashboard" class="card hidden">
+    <h2>Menú principal</h2>
+    <div class="menu grid cols-1">
+      <button class="btn" data-route="agenda">
+        <svg class="icon" viewBox="0 0 24 24" fill="currentColor"><path d="M7 11h10v2H7zm0 4h7v2H7z"/><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z"/></svg>
+        Agendar citas
+      </button>
+      <button class="btn" data-route="disponibles">
+        <svg class="icon" viewBox="0 0 24 24" fill="currentColor"><path d="M3 17h18v2H3v-2zm0-5h18v2H3v-2zm0-5h18v2H3V7z"/></svg>
+        Ver fechas disponibles
+      </button>
+      <button class="btn" data-route="noshow">
+        <svg class="icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4S14.21 4 12 4 8 5.79 8 8s1.79 4 4 4zm0 2c-3.33 0-10 1.67-10 5v1h20v-1c0-3.33-6.67-5-10-5z"/></svg>
+        No-Shows
+      </button>
+      <button class="btn" data-route="recordatorios">
+        <svg class="icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 22a2 2 0 0 0 2-2H10a2 2 0 0 0 2 2zm6-6V9a6 6 0 1 0-12 0v7l-2 2v1h16v-1l-2-2z"/></svg>
+        Enviar recordatorios (24h)
+      </button>
+      <button class="btn" data-route="cobros">
+        <svg class="icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zM7 12h10v2H7v-2z"/></svg>
+        Cobros / Recibos
+      </button>
+      <button class="btn" data-route="rendimiento" id="btnRend" >
+        <svg class="icon" viewBox="0 0 24 24" fill="currentColor"><path d="M3 17h3v-7H3v7zm5 0h3V7H8v10zm5 0h3V4h-3v13zm5 0h3V10h-3v7z"/></svg>
+        Rendimiento
+      </button>
+      <button class="btn" data-route="cuadre" id="btnCuadre">
+        <svg class="icon" viewBox="0 0 24 24" fill="currentColor"><path d="M3 4h18v2H3zM3 9h18v2H3zM3 14h18v2H3zM3 19h18v2H3z"/></svg>
+        Hoja de Cuadre Diario (Sheets)
+      </button>
+      <button class="btn" data-route="config">
+        <svg class="icon" viewBox="0 0 24 24" fill="currentColor"><path d="M19.14 12.94c.04-.31.06-.63.06-.94s-.02-.63-.06-.94l2.03-1.58a.5.5 0 0 0 .12-.64l-1.92-3.32a.5.5 0 0 0-.6-.22l-2.39.96a7.04 7.04 0 0 0-1.63-.94l-.36-2.54A.5.5 0 0 0 13.3 1h-3.6a.5.5 0 0 0-.49.41l-.36 2.54c-.58.22-1.12.52-1.63.94l-2.39-.96a.5.5 0 0 0-.6.22L1.71 7.98a.5.5 0 0 0 .12.64l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94L1.83 14.6a.5.5 0 0 0-.12.64l1.92 3.32a.5.5 0 0 0 .6.22l2.39-.96c.51.42 1.05.72 1.63.94l.36 2.54c.05.24.26.41.49.41h3.6c.24 0 .44-.17.49-.41l.36-2.54c.58-.22 1.12-.52 1.63-.94l2.39.96c.23.09.5 0 .6-.22l1.92-3.32a.5.5 0 0 0-.12-.64l-2.03-1.58zM12 15.5A3.5 3.5 0 1 1 12 8.5a3.5 3.5 0 0 1 0 7z"/></svg>
+        Configuración
+      </button>
+      <button class="btn warn" id="btnLogout">
+        <svg class="icon" viewBox="0 0 24 24" fill="currentColor"><path d="M10.09 15.59L8.67 17l-5-5 5-5 1.41 1.41L6.5 11H21v2H6.5l3.59 2.59z"/></svg>
+        Cerrar sesión
+      </button>
+    </div>
+  </section>
+
+  <!-- AGENDA -->
+  <section id="view-agenda" class="card hidden">
+    <div class="actions">
+      <button class="btn" data-route="dashboard">← Volver al menú</button>
+    </div>
+    <h2>Agendar cita</h2>
+    <div class="row">
+      <div><label>Cliente</label><input id="cNombre" placeholder="Nombre y apellidos"></div>
+      <div><label>Teléfono</label><input id="cTelefono" placeholder="787..."></div>
+    </div>
+    <div class="row">
+      <div><label>Servicio</label><input id="cServicio" placeholder="Corte, color..."></div>
+      <div><label>Técnica/Estilista</label>
+        <select id="cTecnica"></select>
+      </div>
+    </div>
+    <div class="row">
+      <div><label>Fecha</label><input id="cFecha" type="date"></div>
+      <div><label>Hora</label><input id="cHora" type="time"></div>
+      <div><label>Duración (min)</label><input id="cDur" type="number" value="60"></div>
+    </div>
+    <div class="row">
+      <div><label>Notas</label><input id="cNotas" placeholder="Opcional"></div>
+    </div>
+    <div class="actions" style="margin-top:10px">
+      <button class="btn ok" id="btnCrearCita">Crear cita</button>
+      <button class="btn" id="btnLinkGCal">Enlace a Google Calendar</button>
+      <button class="btn" id="btnWhats">WhatsApp al cliente</button>
+    </div>
+
+    <h3 style="margin-top:22px">Citas</h3>
+    <div class="row">
+      <div>
+        <label>Buscar</label><input id="filtroCitas" placeholder="por cliente/fecha/servicio/técnica">
+      </div>
+    </div>
+    <table class="table" id="tblCitas">
+      <thead><tr><th>Fecha</th><th>Hora</th><th>Cliente</th><th>Teléfono</th><th>Servicio</th><th>Técnica</th><th>Notas</th><th>Acciones</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </section>
+
+  <!-- DISPONIBLES -->
+  <section id="view-disponibles" class="card hidden">
+    <div class="actions"><button class="btn" data-route="dashboard">← Volver al menú</button></div>
+    <h2>Fechas/horas disponibles</h2>
+    <p class="muted small">Evita duplicados por cliente, técnica, misma fecha y hora. Horario de trabajo editable en Configuración.</p>
+    <div class="row">
+      <div><label>Fecha</label><input type="date" id="dFecha"></div>
+      <div><label>Técnica</label><select id="dTecnica"></select></div>
+    </div>
+    <div id="slots" class="grid cols-2"></div>
+  </section>
+
+  <!-- NO SHOWS -->
+  <section id="view-noshow" class="card hidden">
+    <div class="actions"><button class="btn" data-route="dashboard">← Volver al menú</button></div>
+    <h2>No-Shows</h2>
+    <table class="table" id="tblNoShows">
+      <thead><tr><th>Fecha</th><th>Hora</th><th>Cliente</th><th>Teléfono</th><th>Servicio</th><th>Técnica</th><th>Acciones</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </section>
+
+  <!-- RECORDATORIOS -->
+  <section id="view-recordatorios" class="card hidden">
+    <div class="actions"><button class="btn" data-route="dashboard">← Volver al menú</button></div>
+    <h2>Recordatorios 24h</h2>
+    <p class="muted small">Genera WhatsApp a todos los clientes con cita <b>mañana</b> (24h).</p>
+    <div class="actions">
+      <button class="btn" id="btnRecordatorios">Generar WhatsApp (24h)</button>
+    </div>
+    <div id="waList" class="grid cols-1" style="margin-top:14px"></div>
+  </section>
+
+  <!-- COBROS / RECIBOS -->
+  <section id="view-cobros" class="card hidden">
+    <div class="actions"><button class="btn" data-route="dashboard">← Volver al menú</button></div>
+    <h2>Cobros y recibos</h2>
+    <div class="row">
+      <div><label>Cliente</label><input id="pCliente"></div>
+      <div><label>Teléfono</label><input id="pTelefono"></div>
+    </div>
+    <div class="row">
+      <div><label>Servicio</label><input id="pServicio"></div>
+      <div><label>Método de pago</label>
+        <select id="pMetodo">
+          <option>ATH Móvil</option>
+          <option>Cash</option>
+          <option>Tarjeta</option>
+          <option>Transferencia</option>
+          <option>Cheque</option>
+        </select>
+      </div>
+      <div><label>Monto</label><input id="pMonto" type="number" step="0.01" placeholder="0.00"></div>
+    </div>
+    <div class="row">
+      <div><label>Notas</label><input id="pNotas" placeholder="Opcional"></div>
+    </div>
+    <div class="actions">
+      <button class="btn ok" id="btnGuardarPago">Guardar cobro</button>
+      <button class="btn" id="btnRecibo">Ver/Compartir recibo</button>
+      <a class="btn" id="btnOpenSheets" target="_blank" href="https://docs.google.com/spreadsheets/d/1-MxlLqk6BLkYiThYros0F3DLCef0jd5tV-pUilMk3iM/edit">Abrir Hoja de Cuadre (Sheets)</a>
+    </div>
+
+    <h3 style="margin-top:22px">Historial de cobros</h3>
+    <div class="actions">
+      <button class="btn" id="btnExportCobros">Exportar CSV</button>
+      <button class="btn" id="btnExportHistorial">Exportar historial de citas (CSV)</button>
+      <button class="btn" id="btnExportLogins">Exportar historial de login (CSV)</button>
+      <button class="btn" id="btnExportRend">Exportar rendimiento (CSV)</button>
+    </div>
+    <table class="table" id="tblPagos">
+      <thead><tr><th>Fecha</th><th>Hora</th><th>Cliente</th><th>Teléfono</th><th>Servicio</th><th>Método</th><th>Monto</th><th>Acciones</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </section>
+
+  <!-- RENDIMIENTO -->
+  <section id="view-rendimiento" class="card hidden">
+    <div class="actions"><button class="btn" data-route="dashboard">← Volver al menú</button></div>
+    <h2>Rendimiento</h2>
+    <div class="grid cols-3">
+      <div class="card"><b>Citas este mes</b><div id="mCitas" style="font-size:28px;margin-top:8px">0</div></div>
+      <div class="card"><b>No-shows este mes</b><div id="mNoShows" style="font-size:28px;margin-top:8px">0</div></div>
+      <div class="card"><b>Ingresos este mes</b><div id="mIngresos" style="font-size:28px;margin-top:8px">$0.00</div></div>
+    </div>
+    <div class="actions" style="margin-top:10px">
+      <button class="btn" id="btnBackupDia">Backup diario (CSV)</button>
+      <button class="btn" id="btnBackupSem">Backup semanal (CSV)</button>
+      <button class="btn" id="btnBackupMes">Backup mensual (CSV)</button>
+      <button class="btn" id="btnBackupAnual">Backup anual (CSV)</button>
+    </div>
+  </section>
+
+  <!-- HOJA DE CUADRE -->
+  <section id="view-cuadre" class="card hidden">
+    <div class="actions"><button class="btn" data-route="dashboard">← Volver al menú</button></div>
+    <h2>Hoja de Cuadre Diario (Google Sheets)</h2>
+    <p class="muted small">Los cobros guardados se registran en el historial local y pueden exportarse a CSV para subir a Sheets o enviarse automáticamente a un <b>Webhook de Apps Script</b> si lo configuras en <b>Configuración &gt; Integraciones</b>.</p>
+    <div class="actions">
+      <a class="btn" target="_blank" href="https://docs.google.com/spreadsheets/d/1-MxlLqk6BLkYiThYros0F3DLCef0jd5tV-pUilMk3iM/edit">Abrir Hoja de Cuadre</a>
+      <button class="btn" id="btnExportCuadre">Exportar CSV (Cuadre)</button>
+    </div>
+  </section>
+
+  <!-- CONFIGURACIÓN -->
+  <section id="view-config" class="card hidden">
+    <div class="actions"><button class="btn" data-route="dashboard">← Volver al menú</button></div>
+    <h2>Configuración</h2>
+
+    <div class="grid cols-2">
+      <div class="card">
+        <h3>Identidad visual</h3>
+        <label>Nombre del salón</label><input id="cfgNombre" placeholder="Ej. Cynthia’s Salón">
+        <label>Logo header (PNG/JPG/SVG)</label><input id="cfgLogoHeader" type="file" accept="image/*">
+        <img id="previewHeader" style="max-height:60px;margin-top:8px" alt="">
+        <label>Logo footer (PNG/JPG/SVG)</label><input id="cfgLogoFooter" type="file" accept="image/*">
+        <img id="previewFooter" style="max-height:48px;margin-top:8px" alt="">
+
+        <div class="row">
+          <div><label>Color fondo</label><input id="cfgBg" type="color" value="#0e1a24"></div>
+          <div><label>Topbar</label><input id="cfgTopbar" type="color" value="#0b1620"></div>
+          <div><label>Panel</label><input id="cfgPanel" type="color" value="#102332"></div>
+          <div><label>Botón</label><input id="cfgBtn" type="color" value="#143a50"></div>
+          <div><label>Fuente (CSS)</label><input id="cfgFont" placeholder="system-ui"></div>
+        </div>
+        <label>Orden de botones (coma)</label>
+        <input id="cfgOrder" placeholder="agenda,disponibles,noshow,recordatorios,cobros,rendimiento,cuadre,config">
+
+        <div class="actions" style="margin-top:10px">
+          <button class="btn ok" id="btnGuardarCfg">Guardar</button>
+          <button class="btn" id="btnExportCfg">Exportar Config JSON</button>
+          <label class="btn"><input id="importCfg" type="file" accept="application/json" style="display:none">Importar Config JSON</label>
+          <button class="btn danger" id="btnResetTheme">Restaurar tema</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Operación</h3>
+        <div class="row">
+          <div><label>Teléfono negocio (WhatsApp)</label><input id="cfgTelNegocio" placeholder="7876643079"></div>
+          <div><label>Correo negocio</label><input id="cfgEmailNegocio" placeholder="email@salon.com"></div>
+        </div>
+        <div class="row">
+          <div><label>Horario (inicio)</label><input id="cfgHIni" type="time" value="08:00"></div>
+          <div><label>Horario (fin)</label><input id="cfgHFin" type="time" value="17:00"></div>
+          <div><label>Intervalo (min)</label><input id="cfgStep" type="number" value="60"></div>
+        </div>
+        <label>Técnicas / Estilistas (una por línea)</label>
+        <textarea id="cfgTecnicas" placeholder="Cynthia&#10;María"></textarea>
+
+        <h3 style="margin-top:14px">Usuarios</h3>
+        <div class="row">
+          <div><label>Nuevo usuario</label><input id="uUser" placeholder="usuario"></div>
+          <div><label>Contraseña</label><input id="uPass" placeholder="••••••" type="password"></div>
+          <div><label>Rol</label>
+            <select id="uRol"><option>admin</option><option>regular</option></select>
+          </div>
+        </div>
+        <div class="actions"><button class="btn" id="btnAddUser">Añadir usuario</button></div>
+        <table class="table" id="tblUsers">
+          <thead><tr><th>Usuario</th><th>Rol</th><th>Acciones</th></tr></thead>
+          <tbody></tbody>
+        </table>
+
+        <h3 style="margin-top:14px">Integraciones</h3>
+        <label>Webhook Apps Script (opcional) para enviar cobros/citas a Sheets</label>
+        <input id="cfgWebhook" placeholder="https://script.google.com/macros/s/XXXX/exec">
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="left">
+    <span id="footerText" class="muted small">© <span id="year"></span> – Salón de Belleza</span>
+  </div>
+  <div class="right">
+    <img id="logoFooter" alt="Logo Footer" src="">
+  </div>
+</footer>
+
+<!-- Recibo imprimible -->
+<template id="tplRecibo">
+  <div style="max-width:720px;margin:0 auto;font-family:var(--font);color:#111">
+    <div style="display:flex;align-items:center;gap:10px;border-bottom:2px solid #111;padding-bottom:10px;margin-bottom:12px">
+      <img id="rLogo" style="height:50px;object-fit:contain">
+      <div>
+        <div id="rSalon" style="font-weight:700;font-size:20px"></div>
+        <div id="rInfo" style="font-size:12px;color:#333"></div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:14px">
+      <div><b>Cliente:</b> <span id="rCliente"></span></div>
+      <div><b>Teléfono:</b> <span id="rTelefono"></span></div>
+      <div><b>Servicio:</b> <span id="rServicio"></span></div>
+      <div><b>Método:</b> <span id="rMetodo"></span></div>
+      <div><b>Monto:</b> $<span id="rMonto"></span></div>
+      <div><b>Fecha:</b> <span id="rFecha"></span></div>
+      <div><b>Hora:</b> <span id="rHora"></span></div>
+      <div><b>Notas:</b> <span id="rNotas"></span></div>
+    </div>
+    <div style="margin-top:14px;font-size:12px;color:#333">Gracias por su preferencia.</div>
+  </div>
+</template>
+
+<script>
+/* ========= Helpers ========= */
+const $ = s=>document.querySelector(s);
+const $$ = s=>Array.from(document.querySelectorAll(s));
+const tz = 'America/Puerto_Rico';
+const SKEY = {
+  cfg:'salon_cfg', users:'salon_users', session:'salon_session',
+  citas:'salon_citas', pagos:'salon_pagos', noshow:'salon_noshow',
+  login:'salon_login', rend:'salon_rend'
+};
+const fmtDate = (d)=>new Intl.DateTimeFormat('es-PR',{year:'numeric',month:'2-digit',day:'2-digit',timeZone:tz}).format(d);
+const fmtTime = (d)=>new Intl.DateTimeFormat('es-PR',{hour:'2-digit',minute:'2-digit',hour12:true,timeZone:tz}).format(d).toLowerCase();
+const toISO = (dateStr,timeStr)=>new Date(`${dateStr}T${timeStr}:00`);
+const uid = ()=>Math.random().toString(36).slice(2,10);
+const load = (k,def)=>{ try{ return JSON.parse(localStorage.getItem(k)) ?? def; }catch(e){ return def; } };
+const save = (k,v)=>localStorage.setItem(k,JSON.stringify(v));
+const money = n=>Number(n||0).toLocaleString('es-PR',{style:'currency',currency:'USD'});
+const todayYMD = ()=>new Date().toISOString().slice(0,10);
+const inRange = (d,a,b)=>{ const x=new Date(d); return x>=a && x<=b; };
+function downloadFile(name, content, type='text/plain'){
+  const blob = new Blob([content],{type});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href=url; a.download=name; a.click();
+  URL.revokeObjectURL(url);
+}
+function csv(rows){
+  const esc=v=>`"${String(v??'').replace(/"/g,'""')}"`;
+  const out=[Object.keys(rows[0]||{}).join(',')];
+  for(const r of rows){ out.push(Object.keys(rows[0]||{}).map(k=>esc(r[k])).join(',')); }
+  return out.join('\n');
+}
+function ensureArrays(){
+  ['citas','pagos','noshow','login','rend'].forEach(k=>{ if(!load(SKEY[k])) save(SKEY[k],[]); });
+}
+
+/* ========= Estado & Config ========= */
+let cfg = load(SKEY.cfg,{
+  nombre:'Salón de Belleza',
+  telNegocio:'7876643079',
+  emailNegocio:'',
+  horario:{ini:'08:00',fin:'17:00',step:60},
+  tecnicas:['Técnica 1','Técnica 2'],
+  theme:{
+    bg:'#0e1a24', topbar:'#0b1620', panel:'#102332', btn:'#143a50', font:'system-ui'
+  },
+  order:['agenda','disponibles','noshow','recordatorios','cobros','rendimiento','cuadre','config'],
+  logos:{header:'',footer:''},
+  webhook:''
+});
+let users = load(SKEY.users,[]);
+let session = load(SKEY.session,null);
+
+function applyTheme(){
+  const r=document.documentElement;
+  r.style.setProperty('--bg',cfg.theme.bg);
+  r.style.setProperty('--topbar',cfg.theme.topbar);
+  r.style.setProperty('--panel',cfg.theme.panel);
+  r.style.setProperty('--btn',cfg.theme.btn);
+  r.style.setProperty('--font',cfg.theme.font||'system-ui');
+  $('#salonName').textContent = cfg.nombre || 'Salón de Belleza';
+  $('#footerText').innerHTML = `© <span id="year"></span> – ${cfg.nombre||'Salón de Belleza'}`;
+  $('#year').textContent = new Date().getFullYear();
+  if(cfg.logos.header) $('#logoHeader').src = cfg.logos.header; else $('#logoHeader').removeAttribute('src');
+  if(cfg.logos.footer) $('#logoFooter').src = cfg.logos.footer; else $('#logoFooter').removeAttribute('src');
+}
+applyTheme();
+
+/* ========= Router sencillo ========= */
+const routes = ['login','dashboard','agenda','disponibles','noshow','recordatorios','cobros','rendimiento','cuadre','config'];
+function show(view){
+  routes.forEach(v=>$('#view-'+v)?.classList.add('hidden'));
+  $('#view-'+view)?.classList.remove('hidden');
+}
+function requireAuth(){
+  if(!session){ show('login'); return false; }
+  // Roles: ocultar secciones a "regular"
+  const isAdmin = session?.rol==='admin';
+  $('#btnRend').style.display = isAdmin? 'inline-flex':'none';
+  $('#btnCuadre').style.display = isAdmin? 'inline-flex':'none';
+  // bloquear acceso directo
+  if(['rendimiento','config','cuadre'].includes(currentRoute()) && !isAdmin){
+    alert('Acceso solo para administradores'); show('dashboard'); return false;
+  }
+  return true;
+}
+function currentRoute(){
+  return (location.hash.replace('#','')||'login');
+}
+window.addEventListener('hashchange',()=>mount());
+function mount(){
+  const r = currentRoute();
+  if(r==='login'){ show('login'); return; }
+  if(!requireAuth()) return;
+  show(r);
+  if(r==='dashboard') refreshMenuOrder();
+  if(r==='agenda'){ fillTecnicas(); renderCitas(); }
+  if(r==='disponibles'){ fillTecnicas('dTecnica'); renderSlots(); }
+  if(r==='noshow'){ renderNoShows(); }
+  if(r==='recordatorios'){ /* nada */ }
+  if(r==='cobros'){ renderPagos(); }
+  if(r==='rendimiento'){ renderRend(); }
+  if(r==='config'){ mountConfig(); }
+  if(r==='cuadre'){ /* nada */ }
+}
+function refreshMenuOrder(){
+  const order = cfg.order.filter(x=>routes.includes(x) && x!=='login' && x!=='dashboard');
+  const menu = $('#view-dashboard .menu');
+  const buttons = Array.from(menu.children);
+  const map = Object.fromEntries(buttons.map(b=>[b.getAttribute('data-route'),b]));
+  menu.innerHTML='';
+  for(const key of order){ if(map[key]) menu.appendChild(map[key]); }
+  // Añade logout al final
+  menu.appendChild($('#btnLogout'));
+}
+
+/* ========= Login & Usuarios ========= */
+$('#btnSeed').onclick=()=>{
+  if(users.length){ alert('Ya existen usuarios.'); return; }
+  users=[{user:'admin',pass:'admin',rol:'admin'}];
+  save(SKEY.users,users);
+  alert('Usuario demo creado: admin / admin');
+};
+$('#btnLogin').onclick=()=>{
+  const u=$('#loginUser').value.trim(), p=$('#loginPass').value.trim();
+  const found = users.find(x=>x.user===u && x.pass===p);
+  if(!found){ alert('Usuario o contraseña incorrectos'); return; }
+  session = { user:found.user, rol:found.rol, ts:Date.now() };
+  save(SKEY.session,session);
+  const log=load(SKEY.login,[]); log.push({id:uid(), user:session.user, rol:session.rol, ts:new Date().toISOString()}); save(SKEY.login,log);
+  location.hash='#dashboard'; mount();
+};
+$('#btnLogout').onclick=()=>{ session=null; save(SKEY.session,null); location.hash='#login'; mount(); };
+
+function mountConfig(){
+  // Visual
+  $('#cfgNombre').value = cfg.nombre||'';
+  $('#cfgFont').value = cfg.theme.font||'';
+  $('#cfgBg').value = cfg.theme.bg; $('#cfgTopbar').value = cfg.theme.topbar; $('#cfgPanel').value = cfg.theme.panel; $('#cfgBtn').value = cfg.theme.btn;
+  $('#cfgOrder').value = cfg.order.join(',');
+  $('#cfgTelNegocio').value = cfg.telNegocio||'';
+  $('#cfgEmailNegocio').value = cfg.emailNegocio||'';
+  $('#cfgHIni').value = cfg.horario.ini; $('#cfgHFin').value = cfg.horario.fin; $('#cfgStep').value = cfg.horario.step;
+  $('#cfgTecnicas').value = (cfg.tecnicas||[]).join('\n');
+  $('#cfgWebhook').value = cfg.webhook||'';
+  $('#previewHeader').src = cfg.logos.header||''; $('#previewFooter').src = cfg.logos.footer||'';
+  renderUsers();
+}
+function renderUsers(){
+  const tbody=$('#tblUsers tbody'); tbody.innerHTML='';
+  users.forEach(u=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML = `<td>${u.user}</td><td>${u.rol}</td>
+      <td class="actions">
+        <button class="btn" data-act="toggle" data-u="${u.user}">Rol</button>
+        <button class="btn danger" data-act="del" data-u="${u.user}">Eliminar</button>
+      </td>`;
+    tbody.appendChild(tr);
+  });
+  tbody.querySelectorAll('button').forEach(b=>{
+    b.onclick=()=>{
+      const act=b.dataset.act, user=b.dataset.u;
+      if(act==='del'){ users=users.filter(x=>x.user!==user); save(SKEY.users,users); renderUsers(); }
+      if(act==='toggle'){ users=users.map(x=>x.user===user? {...x,rol:x.rol==='admin'?'regular':'admin'}:x); save(SKEY.users,users); renderUsers(); }
+    };
+  });
+}
+$('#btnAddUser').onclick=()=>{
+  const u=$('#uUser').value.trim(), p=$('#uPass').value.trim(), r=$('#uRol').value;
+  if(!u || !p) return alert('Usuario y contraseña son requeridos');
+  if(users.some(x=>x.user===u)) return alert('Usuario ya existe');
+  users.push({user:u,pass:p,rol:r}); save(SKEY.users,users); renderUsers();
+  $('#uUser').value=''; $('#uPass').value='';
+};
+
+/* ========= Config: logos, tema, export/import ========= */
+function fileToDataURL(file){ return new Promise(res=>{ const fr=new FileReader(); fr.onload=()=>res(fr.result); fr.readAsDataURL(file); }); }
+$('#cfgLogoHeader').onchange=async(e)=>{ const f=e.target.files[0]; if(!f) return; cfg.logos.header = await fileToDataURL(f); $('#previewHeader').src=cfg.logos.header; };
+$('#cfgLogoFooter').onchange=async(e)=>{ const f=e.target.files[0]; if(!f) return; cfg.logos.footer = await fileToDataURL(f); $('#previewFooter').src=cfg.logos.footer; };
+$('#btnGuardarCfg').onclick=()=>{
+  cfg.nombre=$('#cfgNombre').value.trim()||cfg.nombre;
+  cfg.theme={ bg:$('#cfgBg').value, topbar:$('#cfgTopbar').value, panel:$('#cfgPanel').value, btn:$('#cfgBtn').value, font:$('#cfgFont').value||'system-ui' };
+  cfg.order = $('#cfgOrder').value.split(',').map(s=>s.trim()).filter(Boolean);
+  cfg.telNegocio=$('#cfgTelNegocio').value.trim();
+  cfg.emailNegocio=$('#cfgEmailNegocio').value.trim();
+  cfg.horario = {ini:$('#cfgHIni').value, fin:$('#cfgHFin').value, step:parseInt($('#cfgStep').value||60)};
+  cfg.tecnicas = $('#cfgTecnicas').value.split('\n').map(s=>s.trim()).filter(Boolean);
+  cfg.webhook = $('#cfgWebhook').value.trim();
+  save(SKEY.cfg,cfg); applyTheme(); refreshMenuOrder(); alert('Configuración guardada');
+};
+$('#btnExportCfg').onclick=()=>{
+  downloadFile('config-salon.json', JSON.stringify(cfg,null,2), 'application/json');
+};
+$('#importCfg').onchange=async(e)=>{
+  const f=e.target.files[0]; if(!f) return;
+  const text = await f.text();
+  try{ const json = JSON.parse(text); cfg=json; save(SKEY.cfg,cfg); applyTheme(); refreshMenuOrder(); mount(); alert('Config restaurada'); }
+  catch(err){ alert('JSON inválido'); }
+};
+$('#btnResetTheme').onclick=()=>{
+  cfg.theme={bg:'#0e1a24', topbar:'#0b1620', panel:'#102332', btn:'#143a50', font:'system-ui'};
+  save(SKEY.cfg,cfg); applyTheme(); alert('Tema restaurado');
+};
+
+/* ========= Agenda ========= */
+function fillTecnicas(selectId='cTecnica'){
+  const sel = $('#'+selectId); sel.innerHTML='';
+  (cfg.tecnicas||[]).forEach(t=>{ const o=document.createElement('option'); o.textContent=t; sel.appendChild(o); });
+  if(sel.children.length===0){ const o=document.createElement('option'); o.textContent='Técnica'; sel.appendChild(o); }
+}
+function citas(){ return load(SKEY.citas,[]); }
+function setCitas(arr){ save(SKEY.citas,arr); }
+function renderCitas(){
+  const tbody=$('#tblCitas tbody'); tbody.innerHTML='';
+  const q = $('#filtroCitas').value.trim().toLowerCase();
+  const items = citas().filter(c=>{
+    const s = `${c.fecha} ${c.hora} ${c.cliente} ${c.tel} ${c.servicio} ${c.tecnica} ${c.notas}`.toLowerCase();
+    return !q || s.includes(q);
+  }).sort((a,b)=>new Date(a.inicio)-new Date(b.inicio));
+  for(const c of items){
+    const tr=document.createElement('tr');
+    tr.innerHTML = `
+      <td>${c.fecha}</td><td>${c.hora}</td><td>${c.cliente}</td><td>${c.tel}</td>
+      <td>${c.servicio}</td><td>${c.tecnica}</td><td>${c.notas||''}</td>
+      <td class="actions">
+        <button class="btn" data-act="edit" data-id="${c.id}">Editar</button>
+        <button class="btn warn" data-act="noshow" data-id="${c.id}">No-show</button>
+        <button class="btn danger" data-act="del" data-id="${c.id}">Eliminar</button>
+      </td>`;
+    tbody.appendChild(tr);
+  }
+  tbody.querySelectorAll('button').forEach(b=>{
+    b.onclick=()=>{
+      const id=b.dataset.id, act=b.dataset.act;
+      let arr=citas(); const item=arr.find(x=>x.id===id);
+      if(act==='del'){ if(confirm('Eliminar cita?')){ arr=arr.filter(x=>x.id!==id); setCitas(arr); renderCitas(); } }
+      if(act==='noshow'){ const ns=load(SKEY.noshow,[]); ns.push(item); save(SKEY.noshow,ns); arr=arr.filter(x=>x.id!==id); setCitas(arr); renderCitas(); alert('Marcado como no-show'); }
+      if(act==='edit'){ // cargar en form
+        $('#cNombre').value=item.cliente; $('#cTelefono').value=item.tel; $('#cServicio').value=item.servicio;
+        $('#cTecnica').value=item.tecnica; $('#cFecha').value=item.fecha; $('#cHora').value=item.hora;
+        $('#cDur').value=item.duracion; $('#cNotas').value=item.notas||'';
+        // al guardar, se reemplaza por ID existente
+        $('#btnCrearCita').dataset.editId = id;
+        window.scrollTo({top:0,behavior:'smooth'});
+      }
+    };
+  });
+}
+$('#filtroCitas').oninput=renderCitas;
+
+function dupExists({fecha,hora,cliente,tecnica}){
+  const arr=citas();
+  return arr.some(c=>c.fecha===fecha && c.hora===hora && c.cliente.trim().toLowerCase()===cliente.trim().toLowerCase() && c.tecnica===tecnica);
+}
+$('#btnCrearCita').onclick=async()=>{
+  const cliente=$('#cNombre').value.trim(), tel=$('#cTelefono').value.trim(), servicio=$('#cServicio').value.trim();
+  const tecnica=$('#cTecnica').value, fecha=$('#cFecha').value, hora=$('#cHora').value, dur=parseInt($('#cDur').value||60);
+  const notas=$('#cNotas').value.trim();
+  if(!cliente || !tel || !servicio || !fecha || !hora) return alert('Completa los campos principales');
+  if(dupExists({fecha,hora,cliente,tecnica})) return alert('Cita duplicada (misma persona, técnica, fecha y hora)');
+  const inicio=toISO(fecha,hora), fin=new Date(inicio.getTime()+dur*60000);
+  const idEdit = $('#btnCrearCita').dataset.editId;
+  let arr=citas();
+  if(idEdit){
+    arr=arr.map(x=>x.id===idEdit? {...x,cliente,tel,servicio,tecnica,fecha,hora,duracion:dur,notas,inicio,fin}:x);
+    $('#btnCrearCita').dataset.editId='';
+  }else{
+    arr.push({id:uid(),cliente,tel,servicio,tecnica,fecha,hora,duracion:dur,notas,inicio,fin});
+  }
+  setCitas(arr); renderCitas(); alert('Cita guardada');
+  // webhook opcional
+  if(cfg.webhook){
+    try{ await fetch(cfg.webhook,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({type:'cita',payload:arr[arr.length-1]})}); }catch(e){}
+  }
+};
+$('#btnLinkGCal').onclick=()=>{
+  const cliente=$('#cNombre').value.trim(), servicio=$('#cServicio').value.trim(), fecha=$('#cFecha').value, hora=$('#cHora').value, dur=parseInt($('#cDur').value||60);
+  if(!cliente || !servicio || !fecha || !hora) return alert('Completa cliente, servicio, fecha y hora');
+  const start=toISO(fecha,hora); const end=new Date(start.getTime()+dur*60000);
+  const toCal=(d)=>d.toISOString().replace(/[-:]/g,'').split('.')[0]+'Z';
+  const url=`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(servicio+' – '+cliente)}&details=${encodeURIComponent('Cita de salón')}&dates=${toCal(start)}/${toCal(end)}`;
+  window.open(url,'_blank');
+};
+$('#btnWhats').onclick=()=>{
+  const tel=$('#cTelefono').value.replace(/\D/g,''), cliente=$('#cNombre').value.trim(), fecha=$('#cFecha').value, hora=$('#cHora').value;
+  if(!tel || !cliente || !fecha || !hora) return alert('Completa cliente, teléfono, fecha y hora');
+  const msg=`Hola ${cliente}, tu cita quedó agendada para el ${fecha} a las ${hora}. ¡Gracias!`;
+  const url=`https://wa.me/${tel}?text=${encodeURIComponent(msg)}`;
+  window.open(url,'_blank');
+};
+
+/* ========= Disponibles ========= */
+function renderSlots(){
+  const cont = $('#slots'); cont.innerHTML='';
+  const f=$('#dFecha').value || todayYMD(); $('#dFecha').value=f;
+  const t=$('#dTecnica').value || (cfg.tecnicas[0]||'');
+  const start = toISO(f,cfg.horario.ini), end=toISO(f,cfg.horario.fin);
+  const step = cfg.horario.step||60;
+  const taken = citas().filter(c=>c.fecha===f && c.tecnica===t).map(c=>c.hora);
+  for(let d=new Date(start); d<end; d=new Date(d.getTime()+step*60000)){
+    const h = d.toTimeString().slice(0,5);
+    const free = !taken.includes(h);
+    const btn=document.createElement('button');
+    btn.className='btn '+(free?'ok':'warn'); btn.style.justifyContent='space-between';
+    btn.innerHTML = `<span>${h}</span><span>${free?'Disponible':'Ocupado'}</span>`;
+    btn.disabled=!free;
+    btn.onclick=()=>{
+      location.hash='#agenda'; mount();
+      $('#cFecha').value=f; $('#cHora').value=h; $('#cTecnica').value=t;
+    };
+    cont.appendChild(btn);
+  }
+}
+$('#dFecha').onchange=renderSlots;
+
+/* ========= No-shows ========= */
+function noShows(){ return load(SKEY.noshow,[]); }
+function renderNoShows(){
+  const tbody=$('#tblNoShows tbody'); tbody.innerHTML='';
+  for(const n of noShows()){
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${n.fecha}</td><td>${n.hora}</td><td>${n.cliente}</td><td>${n.tel}</td><td>${n.servicio}</td><td>${n.tecnica}</td>
+    <td class="actions">
+      <button class="btn" data-act="reagendar" data-id="${n.id}">Re-agendar</button>
+      <button class="btn danger" data-act="del" data-id="${n.id}">Eliminar</button>
+    </td>`;
+    tbody.appendChild(tr);
+  }
+  tbody.querySelectorAll('button').forEach(b=>{
+    b.onclick=()=>{
+      const id=b.dataset.id, act=b.dataset.act;
+      let ns=noShows(); const item=ns.find(x=>x.id===id);
+      if(act==='del'){ ns=ns.filter(x=>x.id!==id); save(SKEY.noshow,ns); renderNoShows(); }
+      if(act==='reagendar'){ location.hash='#agenda'; mount();
+        $('#cNombre').value=item.cliente; $('#cTelefono').value=item.tel; $('#cServicio').value=item.servicio; $('#cTecnica').value=item.tecnica;
+        $('#cFecha').value=item.fecha; $('#cHora').value=item.hora; $('#cNotas').value='Reagendado de No-Show';
+      }
+    };
+  });
+}
+
+/* ========= Recordatorios ========= */
+$('#btnRecordatorios').onclick=()=>{
+  const out=$('#waList'); out.innerHTML='';
+  const now=new Date(); const tomorrow=new Date(now.getTime()+24*3600*1000);
+  const ymd = tomorrow.toISOString().slice(0,10);
+  const list = citas().filter(c=>c.fecha===ymd);
+  if(!list.length){ out.innerHTML='<div class="muted">No hay citas para mañana.</div>'; return; }
+  list.forEach(c=>{
+    const msg=`Hola ${c.cliente}, te recordamos tu cita para el ${c.fecha} a las ${c.hora}. Responde CONFIRMO para asegurar tu espacio.`;
+    const url=`https://wa.me/${c.tel.replace(/\D/g,'')}?text=${encodeURIComponent(msg)}`;
+    const a=document.createElement('a'); a.className='btn'; a.target='_blank'; a.href=url; a.textContent=`WhatsApp a ${c.cliente} (${c.hora})`;
+    out.appendChild(a);
+  });
+};
+
+/* ========= Cobros / Recibos ========= */
+function pagos(){ return load(SKEY.pagos,[]); }
+function setPagos(arr){ save(SKEY.pagos,arr); }
+function renderPagos(){
+  const tbody=$('#tblPagos tbody'); tbody.innerHTML='';
+  for(const p of pagos().sort((a,b)=>new Date(b.ts)-new Date(a.ts))){
+    const d=new Date(p.ts);
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${fmtDate(d)}</td><td>${fmtTime(d)}</td><td>${p.cliente}</td><td>${p.tel}</td>
+    <td>${p.servicio}</td><td>${p.metodo}</td><td>${money(p.monto)}</td>
+    <td class="actions">
+      <button class="btn" data-act="recibo" data-id="${p.id}">Recibo</button>
+      <button class="btn danger" data-act="del" data-id="${p.id}">Eliminar</button>
+    </td>`;
+    tbody.appendChild(tr);
+  }
+  tbody.querySelectorAll('button').forEach(b=>{
+    b.onclick=()=>{
+      const act=b.dataset.act, id=b.dataset.id;
+      if(act==='del'){ let arr=pagos().filter(x=>x.id!==id); setPagos(arr); renderPagos(); }
+      if(act==='recibo'){ const p=pagos().find(x=>x.id===id); openRecibo(p); }
+    };
+  });
+}
+$('#btnGuardarPago').onclick=async()=>{
+  const cliente=$('#pCliente').value.trim(), tel=$('#pTelefono').value.trim();
+  const servicio=$('#pServicio').value.trim(), metodo=$('#pMetodo').value, monto=parseFloat($('#pMonto').value||'0');
+  const notas=$('#pNotas').value.trim();
+  if(!cliente || !servicio || !monto) return alert('Cliente, servicio y monto son requeridos');
+  const item={id:uid(),cliente,tel,servicio,metodo,monto,notas,ts:new Date().toISOString()};
+  const arr=pagos(); arr.push(item); setPagos(arr); renderPagos(); alert('Cobro guardado');
+  // Webhook opcional → Sheets
+  if(cfg.webhook){
+    try{ await fetch(cfg.webhook,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({type:'pago',payload:item})}); }catch(e){}
+  }
+};
+$('#btnRecibo').onclick=()=>{
+  const cliente=$('#pCliente').value.trim(); if(!cliente) return alert('Primero llena el formulario y guarda o usa un pago del historial');
+  const last=pagos().slice(-1)[0]; if(!last) return alert('Guarda el cobro para generar recibo');
+  openRecibo(last);
+};
+function openRecibo(p){
+  const t=$('#tplRecibo').content.cloneNode(true);
+  t.querySelector('#rLogo').src = cfg.logos.header||'';
+  t.querySelector('#rSalon').textContent = cfg.nombre||'Salón de Belleza';
+  t.querySelector('#rInfo').textContent = `${cfg.emailNegocio||''} · ${cfg.telNegocio||''}`;
+  t.querySelector('#rCliente').textContent = p.cliente;
+  t.querySelector('#rTelefono').textContent = p.tel;
+  t.querySelector('#rServicio').textContent = p.servicio;
+  t.querySelector('#rMetodo').textContent = p.metodo;
+  t.querySelector('#rMonto').textContent = Number(p.monto).toFixed(2);
+  const d=new Date(p.ts);
+  t.querySelector('#rFecha').textContent = fmtDate(d);
+  t.querySelector('#rHora').textContent = fmtTime(d);
+  t.querySelector('#rNotas').textContent = p.notas||'';
+  const w=window.open('','_blank','width=820,height=900');
+  w.document.write('<html><head><title>Recibo</title></head><body>');
+  w.document.body.appendChild(t);
+  w.document.write('<script>window.print()<\/script>');
+  w.document.write('</body></html>');
+  w.document.close();
+}
+
+/* ========= Exports / Backups ========= */
+$('#btnExportCobros').onclick=()=>{
+  const rows = pagos().map(p=>({fecha:p.ts.slice(0,10),hora:new Date(p.ts).toTimeString().slice(0,5),cliente:p.cliente,telefono:p.tel,servicio:p.servicio,metodo:p.metodo,monto:p.monto,notas:p.notas||''}));
+  if(!rows.length) return alert('Sin datos'); downloadFile('cobros.csv', csv(rows), 'text/csv');
+};
+$('#btnExportHistorial').onclick=()=>{
+  const rows = citas().map(c=>({fecha:c.fecha,hora:c.hora,cliente:c.cliente,telefono:c.tel,servicio:c.servicio,tecnica:c.tecnica,notas:c.notas||''}));
+  if(!rows.length) return alert('Sin datos'); downloadFile('citas.csv', csv(rows), 'text/csv');
+};
+$('#btnExportLogins').onclick=()=>{
+  const rows = load(SKEY.login,[]).map(l=>({usuario:l.user,rol:l.rol,fecha:l.ts}));
+  if(!rows.length) return alert('Sin datos'); downloadFile('login.csv', csv(rows), 'text/csv');
+};
+$('#btnExportRend').onclick=()=>{
+  const rows = (load(SKEY.rend,[])).map(r=>({mes:r.mes,citas:r.citas,noShows:r.noShows,ingresos:r.ingresos}));
+  downloadFile('rendimiento.csv', csv(rows), 'text/csv');
+};
+$('#btnExportCuadre').onclick=()=>{
+  const rows = pagos().map(p=>({fecha:p.ts.slice(0,10),hora:new Date(p.ts).toTimeString().slice(0,5),cliente:p.cliente,telefono:p.tel,servicio:p.servicio,metodo:p.metodo,monto:p.monto}));
+  if(!rows.length) return alert('Sin datos'); downloadFile('cuadre_diario.csv', csv(rows), 'text/csv');
+};
+
+// Backups por rango rápido
+function exportByRange(label, days){
+  const now=new Date(); const from=new Date(now.getTime()-days*86400000);
+  const C=citas().filter(c=>inRange(c.inicio,from,now)).map(c=>({fecha:c.fecha,hora:c.hora,cliente:c.cliente,telefono:c.tel,servicio:c.servicio,tecnica:c.tecnica}));
+  const P=pagos().filter(p=>inRange(p.ts,from,now)).map(p=>({fecha:p.ts.slice(0,10),hora:new Date(p.ts).toTimeString().slice(0,5),cliente:p.cliente,telefono:p.tel,servicio:p.servicio,metodo:p.metodo,monto:p.monto}));
+  const N=noShows().filter(n=>inRange(n.inicio||(`${n.fecha}T${n.hora}:00`),from,now)).map(n=>({fecha:n.fecha,hora:n.hora,cliente:n.cliente,telefono:n.tel,servicio:n.servicio,tecnica:n.tecnica}));
+  const pack = {desde:from.toISOString(), hasta:now.toISOString(), citas:C, pagos:P, noshows:N, cfg};
+  downloadFile(`backup_${label}.json`, JSON.stringify(pack,null,2), 'application/json');
+}
+$('#btnBackupDia').onclick = ()=>exportByRange('diario',1);
+$('#btnBackupSem').onclick = ()=>exportByRange('semanal',7);
+$('#btnBackupMes').onclick = ()=>exportByRange('mensual',31);
+$('#btnBackupAnual').onclick = ()=>exportByRange('anual',365);
+
+/* ========= Rendimiento (KPIs simple por mes actual) ========= */
+function renderRend(){
+  const now=new Date(); const ym = now.toISOString().slice(0,7);
+  const c = citas().filter(x=>x.fecha.slice(0,7)===ym).length;
+  const ns = noShows().filter(x=>(x.fecha||'').slice(0,7)===ym).length;
+  const p = pagos().filter(x=>x.ts.slice(0,7)===ym).reduce((a,b)=>a+Number(b.monto||0),0);
+  $('#mCitas').textContent = c;
+  $('#mNoShows').textContent = ns;
+  $('#mIngresos').textContent = money(p);
+  // guarda snapshot (opcional)
+  let rend=load(SKEY.rend,[]); const i=rend.findIndex(r=>r.mes===ym);
+  const row={mes:ym,citas:c,noShows:ns,ingresos:p};
+  if(i>=0) rend[i]=row; else rend.push(row);
+  save(SKEY.rend,rend);
+}
+
+/* ========= Accesos UI ========= */
+$$('[data-route]').forEach(b=>b.onclick=()=>{ location.hash='#'+b.dataset.route; });
+$('#btnDashboard').onclick=()=>{ location.hash='#dashboard'; };
+
+/* ========= Inicialización ========= */
+ensureArrays();
+if(!location.hash) location.hash = '#login';
+mount();
+
+/* ========= PWA: registrar SW ========= */
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=>navigator.serviceWorker.register('./service-worker.js'));
+}
+</script>
+</body>
+</html>
