@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Salon Pro – Citas & Cobros</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#111111">
+
+<style>
+  :root{
+    --color-bg:#0f0f12;
+    --color-topbar:#111827;
+    --color-footer:#111827;
+    --color-text:#f6f7fb;
+    --color-muted:#9aa0a6;
+    --color-accent:#3b82f6;
+    --color-btn:#1f2937;
+    --color-btn-text:#f6f7fb;
+    --color-card:#171923;
+    --font: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    --radius:14px;
+    --gap:14px;
+    --btn-radius:12px;
+    --btn-height:52px;
+    --content-max:960px;
+    --bg-image:none; /* url('...') — editable en Configuración */
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0; font-family:var(--font); color:var(--color-text);
+    background: var(--color-bg);
+    background-image: var(--bg-image);
+    background-size: cover; background-position:center; background-attachment: fixed;
+  }
+  a{color:var(--color-accent); text-decoration:none}
+  .topbar{
+    position:sticky; top:0; z-index:50;
+    background:var(--color-topbar); border-bottom:1px solid #222631;
+    padding:10px 14px; display:flex; align-items:center; gap:12px; min-height:64px;
+  }
+  .topbar .logo{
+    width:40px; height:40px; border-radius:10px; overflow:hidden; background:#222;
+    display:grid; place-items:center; flex-shrink:0;
+  }
+  .topbar img{max-width:100%; max-height:100%; display:block}
+  .topbar .title{font-weight:700; letter-spacing:.3px}
+  .topbar .spacer{flex:1}
+  .topbar .btn{background:transparent; color:var(--color-text); border:1px solid #2a2f3a; height:38px; padding:0 12px; border-radius:10px; cursor:pointer}
+
+  .container{max-width:var(--content-max); margin:0 auto; padding:18px; padding-bottom:120px}
+  .card{
+    background:var(--color-card); border:1px solid #222631; border-radius:var(--radius); padding:16px; margin-bottom:var(--gap)
+  }
+  .btn{
+    width:100%; height:var(--btn-height); border-radius:var(--btn-radius);
+    border:1px solid #2a2f3a; background:var(--color-btn); color:var(--color-btn-text);
+    font-weight:600; display:flex; align-items:center; justify-content:flex-start; gap:12px; padding:0 14px; cursor:pointer
+  }
+  .btn:hover{outline:2px solid #2b3342}
+  .btn small{color:var(--color-muted); font-weight:500}
+  .icon{width:22px; height:22px; display:inline-grid; place-items:center}
+  .stack{display:grid; gap:10px}
+  .row{display:flex; gap:10px; flex-wrap:wrap}
+  .row > *{flex:1}
+  label{display:block; font-size:.92rem; color:var(--color-muted); margin-bottom:6px}
+  input,select,textarea{
+    width:100%; background:#0e1119; color:var(--color-text); border:1px solid #232836;
+    border-radius:10px; height:44px; padding:0 12px; outline:none
+  }
+  textarea{height:100px; padding:10px}
+  .footer{
+    position:fixed; bottom:0; left:0; right:0; background:var(--color-footer);
+    border-top:1px solid #222631; padding:10px 14px; display:flex; align-items:center; gap:10px; justify-content:space-between
+  }
+  .pill{padding:6px 10px; background:#121826; border:1px solid #222b3a; border-radius:999px; color:#b8c1d1}
+  .hide{display:none !important}
+  .grid2{display:grid; gap:12px; grid-template-columns:repeat(2, 1fr)}
+  .grid3{display:grid; gap:12px; grid-template-columns:repeat(3, 1fr)}
+  .center{display:grid; place-items:center}
+  .muted{color:var(--color-muted)}
+  .danger{color:#ff6666}
+  .success{color:#7dd47d}
+  .warning{color:#fbbf24}
+  .divider{height:1px; background:#232836; margin:12px 0}
+  .list{display:grid; gap:10px}
+  .table{width:100%; border-collapse:collapse; font-size:.95rem}
+  .table th,.table td{border-bottom:1px solid #232836; padding:10px; text-align:left}
+  .badge{padding:2px 8px; border-radius:999px; border:1px solid #2a2f3a; font-size:.8rem}
+  .top-actions{display:flex; gap:8px; flex-wrap:wrap}
+  .top-actions .btn{width:auto; height:40px}
+  .right{justify-content:flex-end}
+  .small{font-size:.9rem}
+  .note{background:#0c1018; border:1px dashed #2a2f3a; padding:10px; border-radius:10px}
+  .link-btn{display:inline-flex; align-items:center; gap:8px; padding:10px 12px; border:1px solid #2a2f3a; border-radius:10px}
+  .uploader{display:grid; gap:8px}
+  .thumb{width:90px; height:90px; border-radius:10px; overflow:hidden; background:#222; display:grid; place-items:center; border:1px solid #2a2f3a}
+  .inline{display:flex; gap:8px; align-items:center}
+  .right-actions{display:flex; gap:8px; align-items:center}
+  .menu-order{display:grid; gap:6px}
+  .menu-order .drag{padding:10px; border:1px dashed #2a2f3a; border-radius:8px; background:#0e1119; cursor:grab}
+  .warning-box{background:#20140f; border:1px solid #3a241c; padding:10px; border-radius:10px}
+
+  /* Login */
+  #loginView{min-height:calc(100vh - 64px - 56px); display:grid; place-items:center}
+  .login-card{max-width:420px; width:100%}
+
+  /* Responsive tweaks */
+  @media (max-width:720px){
+    .grid3{grid-template-columns:1fr}
+    .grid2{grid-template-columns:1fr}
+    .row > *{flex-basis:100%}
+  }
+</style>
+</head>
+<body>
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="logo" id="logoBox"><img id="logoImg" alt=""></div>
+    <div class="title" id="salonName">Mi Salón</div>
+    <div class="spacer"></div>
+    <button class="btn" id="btnDashboard">Dashboard</button>
+  </div>
+
+  <div class="container">
+    <!-- WELCOME / HOME -->
+    <div id="homeView" class="card">
+      <div class="center" style="text-align:center; gap:8px">
+        <div class="thumb" style="width:120px; height:120px; border-radius:28px"><img id="homeLogo" alt=""></div>
+        <h1 id="welcomeTitle" style="margin:8px 0 0">¡Bienvenid@!</h1>
+        <div id="welcomeSubtitle" class="muted">Gestiona tu salón desde aquí.</div>
+      </div>
+      <div class="divider"></div>
+      <div class="top-actions right">
+        <button class="btn" id="btnGoLogin">Ingresar</button>
+      </div>
+    </div>
+
+    <!-- LOGIN -->
+    <div id="loginView" class="hide">
+      <div class="card login-card">
+        <h2>Ingresar</h2>
+        <div class="stack">
+          <div>
+            <label>Usuario</label>
+            <input id="loginUser" autocomplete="username">
+          </div>
+          <div>
+            <label>Contraseña</label>
+            <input id="loginPass" type="password" autocomplete="current-password">
+          </div>
+          <button class="btn" id="btnLogin"><span class="icon">🔐</span>Entrar</button>
+          <div class="note small">Admins pueden crear usuarios en Configuración &rarr; Usuarios.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DASHBOARD / MENU -->
+    <div id="menuView" class="card hide">
+      <div class="top-actions">
+        <span class="pill" id="whoami">—</span>
+        <button class="btn" id="btnBackHome">Inicio</button>
+        <button class="btn" id="btnLogout">Salir</button>
+      </div>
+      <div class="divider"></div>
+      <div id="menuButtons" class="stack">
+        <!-- Botones (orden y estilos configurables) -->
+      </div>
+    </div>
+
+    <!-- SUBVIEWS: cada función abre su “hoja” con botón regresar -->
+    <!-- AGENDA CITAS -->
+    <div id="agendaView" class="card hide">
+      <div class="top-actions">
+        <button class="btn" data-back>← Regresar</button>
+        <div class="spacer"></div>
+        <button class="btn" id="btnExportCitas">Exportar historial de citas (CSV)</button>
+      </div>
+      <h2>Agendar cita</h2>
+      <div class="grid3">
+        <div>
+          <label>Cliente</label>
+          <input id="citaNombre" placeholder="Nombre y apellido">
+        </div>
+        <div>
+          <label>Teléfono</label>
+          <input id="citaTel" placeholder="+1 787...">
+        </div>
+        <div>
+          <label>Técnica/Estilista</label>
+          <select id="citaTecnica"></select>
+        </div>
+        <div>
+          <label>Servicio</label>
+          <select id="citaServicio"></select>
+        </div>
+        <div>
+          <label>Fecha</label>
+          <input id="citaFecha" type="date">
+        </div>
+        <div>
+          <label>Hora</label>
+          <input id="citaHora" type="time">
+        </div>
+        <div style="grid-column:1/-1">
+          <label>Notas</label>
+          <textarea id="citaNotas" placeholder="Notas internas…"></textarea>
+        </div>
+      </div>
+      <div class="row" style="margin-top:12px">
+        <button class="btn" id="btnCrearCita"><span class="icon">🗓️</span>Crear cita</button>
+        <button class="btn" id="btnGoogleCal"><span class="icon">📆</span>Crear en Google Calendar</button>
+        <button class="btn" id="btnWhatsAppCita"><span class="icon">🟢</span>Enviar WhatsApp</button>
+      </div>
+
+      <div class="divider"></div>
+      <h3>Buscar / Filtrar</h3>
+      <div class="row">
+        <input id="filtroTexto" placeholder="Cliente / Teléfono">
+        <input id="filtroFecha" type="date">
+        <select id="filtroTecnica"></select>
+        <button class="btn" id="btnFiltrar">Filtrar</button>
+      </div>
+
+      <div class="divider"></div>
+      <h3>Listado de citas</h3>
+      <table class="table" id="tablaCitas">
+        <thead>
+          <tr>
+            <th>Fecha</th><th>Hora</th><th>Cliente</th><th>Teléfono</th><th>Técnica</th><th>Servicio</th><th>Estado</th><th></th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <!-- FECHAS DISPONIBLES -->
+    <div id="disponiblesView" class="card hide">
+      <div class="top-actions">
+        <button class="btn" data-back>← Regresar</button>
+      </div>
+      <h2>Fechas disponibles</h2>
+      <div class="grid3">
+        <div><label>Fecha</label><input type="date" id="dispoFecha"></div>
+        <div><label>Técnica</label><select id="dispoTecnica"></select></div>
+        <div><label>Duración (mins)</label><input type="number" id="dispoDuracion" value="60" min="15"></div>
+      </div>
+      <div class="row" style="margin-top:12px"><button class="btn" id="btnCalcularDisponibles">Ver espacios</button></div>
+      <div class="list" id="listaDisponibles" style="margin-top:10px"></div>
+    </div>
+
+    <!-- NO SHOWS -->
+    <div id="noshowView" class="card hide">
+      <div class="top-actions">
+        <button class="btn" data-back>← Regresar</button>
+        <div class="spacer"></div>
+        <button class="btn" id="btnExportNoShows">Exportar No Shows (CSV)</button>
+      </div>
+      <h2>No show</h2>
+      <div class="list" id="listaNoShows"></div>
+    </div>
+
+    <!-- RECORDATORIOS -->
+    <div id="remindersView" class="card hide">
+      <div class="top-actions">
+        <button class="btn" data-back>← Regresar</button>
+      </div>
+      <h2>Recordatorios (24h antes)</h2>
+      <div id="listaReminders" class="list"></div>
+      <div class="note small">Se generan mensajes listos para WhatsApp con fecha y hora configurables.</div>
+    </div>
+
+    <!-- COBROS / FACTURAS -->
+    <div id="cobrosView" class="card hide">
+      <div class="top-actions">
+        <button class="btn" data-back>← Regresar</button>
+        <div class="spacer"></div>
+        <button class="btn" id="btnExportCobros">Exportar historial de cobros (CSV)</button>
+      </div>
+      <h2>Factura / Cobro</h2>
+      <div class="grid3">
+        <div><label>Cliente</label><input id="coNombre"></div>
+        <div><label>Teléfono</label><input id="coTel"></div>
+        <div><label>Fecha</label><input id="coFecha" type="date"></div>
+        <div><label>Hora</label><input id="coHora" type="time"></div>
+        <div><label>Servicio</label><select id="coServicio"></select></div>
+        <div><label>Precio</label><input id="coPrecio" type="number" step="0.01"></div>
+        <div><label>Método</label>
+          <select id="coMetodo">
+            <option>Ath Móvil</option><option>Cash</option><option>Tarjeta</option>
+          </select>
+        </div>
+      </div>
+      <div class="row" style="margin-top:12px">
+        <button class="btn" id="btnGuardarCobro"><span class="icon">💾</span>Guardar cobro</button>
+        <button class="btn" id="btnWhatsAppRecibo"><span class="icon">🟢</span>Enviar recibo por WhatsApp</button>
+      </div>
+      <div class="divider"></div>
+      <h3>Historial</h3>
+      <table class="table" id="tablaCobros">
+        <thead><tr><th>Fecha</th><th>Hora</th><th>Cliente</th><th>Teléfono</th><th>Servicio</th><th>Método</th><th>Total</th></tr></thead>
+        <tbody></tbody>
+      </table>
+      <div class="note small">
+        Para enviar a Google Sheets de cuadre diario, configura un <b>Google Form</b> que alimente tu hoja y pega su URL en Configuración (o usa tu enlace directo de la hoja si solo quieres verla). Este app abrirá el URL con los datos del cobro como parámetros.
+      </div>
+    </div>
+
+    <!-- RENDIMIENTO -->
+    <div id="rendimientoView" class="card hide">
+      <div class="top-actions">
+        <button class="btn" data-back>← Regresar</button>
+        <div class="spacer"></div>
+        <button class="btn" id="btnExportRendimiento">Exportar rendimiento (CSV)</button>
+      </div>
+      <h2>Rendimiento</h2>
+      <div id="rendimientoResumen" class="list"></div>
+    </div>
+
+    <!-- HOJA DE CUADRE (GOOGLE SHEETS) -->
+    <div id="cuadreView" class="card hide">
+      <div class="top-actions">
+        <button class="btn" data-back>← Regresar</button>
+        <a class="link-btn" id="openSheet" target="_blank">Abrir Google Sheets</a>
+      </div>
+      <h2>Hoja de cuadre diario</h2>
+      <div class="note small">
+        Enlace actual: <span id="sheetUrlShown" class="muted"></span>
+      </div>
+      <div class="warning-box small">
+        Para <b>enviar automáticamente</b> cobros, usa un <b>Google Form</b> conectado a tu Sheet y pega aquí el URL del Form.
+        El app abrirá el Form con valores pre-llenados (cliente, teléfono, fecha, hora, servicio, método, total). Sin un Form, solo se abre la hoja (lectura).
+      </div>
+    </div>
+
+    <!-- CONFIGURACIÓN -->
+    <div id="configView" class="card hide">
+      <div class="top-actions">
+        <button class="btn" data-back>← Regresar</button>
+        <div class="spacer"></div>
+        <button class="btn" id="btnExportConfig">Exportar configuración (JSON)</button>
+        <label class="btn" for="importConfigFile">Importar configuración (JSON)</label>
+        <input id="importConfigFile" type="file" accept="application/json" class="hide">
+      </div>
+      <h2>Configuración</h2>
+
+      <div class="grid2">
+        <div class="card">
+          <h3>Marca & UI</h3>
+          <div class="uploader">
+            <label>Logo (se adapta)</label>
+            <input id="logoInput" type="file" accept="image/*">
+            <div class="inline">
+              <div class="thumb"><img id="logoPreview" alt=""></div>
+              <div class="thumb"><img id="homeLogoPreview" alt=""></div>
+            </div>
+          </div>
+          <div class="row" style="margin-top:10px">
+            <div><label>Nombre del salón</label><input id="cfgSalonName"></div>
+            <div><label>Título de bienvenida</label><input id="cfgWelcomeTitle"></div>
+          </div>
+          <div class="row">
+            <div><label>Subtítulo bienvenida</label><input id="cfgWelcomeSub"></div>
+          </div>
+          <div class="divider"></div>
+          <h4>Colores</h4>
+          <div class="grid3">
+            <div><label>Fondo</label><input id="colBg" type="color" value="#0f0f12"></div>
+            <div><label>Topbar</label><input id="colTop" type="color" value="#111827"></div>
+            <div><label>Footer</label><input id="colFoot" type="color" value="#111827"></div>
+            <div><label>Texto</label><input id="colText" type="color" value="#f6f7fb"></div>
+            <div><label>Botón</label><input id="colBtn" type="color" value="#1f2937"></div>
+            <div><label>Accento</label><input id="colAccent" type="color" value="#3b82f6"></div>
+          </div>
+          <div style="margin-top:10px">
+            <label>Imagen de fondo (PNG con transparencia, opcional)</label>
+            <input id="bgInput" type="file" accept="image/*">
+          </div>
+          <div class="divider"></div>
+          <h4>Estilo botones</h4>
+          <div class="row">
+            <div><label>Altura</label><input id="btnHeight" type="number" value="52"></div>
+            <div><label>Radio</label><input id="btnRadius" type="number" value="12"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Agenda</h3>
+          <div class="row">
+            <div><label>Horario inicio</label><input id="cfgHoraIni" type="time" value="09:00"></div>
+            <div><label>Horario fin</label><input id="cfgHoraFin" type="time" value="19:00"></div>
+            <div><label>Intervalo (min)</label><input id="cfgIntervalo" type="number" value="30"></div>
+          </div>
+          <div class="row">
+            <div><label>Mensaje WhatsApp (plantilla)</label><textarea id="cfgMsgWa">¡Hola {nombre}! Tu cita es el {fecha} a las {hora} con {tecnica}. Cualquier cambio, responde este mensaje. 💇🏽‍♀️</textarea></div>
+          </div>
+          <div class="divider"></div>
+          <h4>Técnicas / Estilistas</h4>
+          <div id="listaTecnicas" class="list"></div>
+          <div class="row">
+            <input id="newTecnica" placeholder="Nombre de técnica">
+            <button class="btn" id="btnAddTecnica">Añadir</button>
+          </div>
+          <div class="divider"></div>
+          <h4>Servicios & Precios</h4>
+          <div id="listaServicios" class="list"></div>
+          <div class="grid3">
+            <input id="newServicio" placeholder="Servicio">
+            <input id="newPrecio" type="number" placeholder="Precio" step="0.01">
+            <button class="btn" id="btnAddServicio">Añadir</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Usuarios & Roles</h3>
+        <div class="note small">Los <b>regulares</b> no pueden acceder a Configuración, Rendimiento ni Hoja de Cuadre.</div>
+        <div id="listaUsuarios" class="list" style="margin-top:8px"></div>
+        <div class="grid3" style="margin-top:8px">
+          <input id="newUser" placeholder="usuario">
+          <input id="newPass" placeholder="contraseña">
+          <select id="newRole"><option>admin</option><option>regular</option></select>
+        </div>
+        <div class="row" style="margin-top:8px"><button class="btn" id="btnAddUser">Añadir usuario</button></div>
+      </div>
+
+      <div class="card">
+        <h3>Google Calendar & Sheets</h3>
+        <div class="row">
+          <div><label>Nombre de Calendario (solo para referencia)</label><input id="cfgCalNombre" placeholder="Mi Calendario"></div>
+          <div><label>URL Google Sheets / Cuadre</label><input id="cfgSheetUrl" placeholder="Pega aquí tu enlace de hoja o Form"></div>
+        </div>
+        <div class="note small">
+          Tu hoja de cuadre: <a id="linkSheets" target="_blank">Abrir</a><br>
+          Enlace por defecto del cliente: <code>https://docs.google.com/spreadsheets/d/1-MxlLqk6BLkYiThYros0F3DLCef0jd5tV-pUilMk3iM/edit</code>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Backups</h3>
+        <div class="row">
+          <button class="btn" id="btnExportBackup">Exportar backup (JSON)</button>
+          <label class="btn" for="importBackupFile">Importar backup (JSON)</label>
+          <input id="importBackupFile" type="file" accept="application/json" class="hide">
+        </div>
+        <div class="grid3" style="margin-top:10px">
+          <button class="btn" data-quickbackup="diario">Backup Diario</button>
+          <button class="btn" data-quickbackup="semanal">Backup Semanal</button>
+          <button class="btn" data-quickbackup="mensual">Backup Mensual</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Menú & Orden</h3>
+        <div class="menu-order" id="menuOrder"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div class="muted small">© <span id="year"></span> <span id="footSalon">Mi Salón</span></div>
+    <div class="right-actions">
+      <span class="pill small">PWA listo ✅</span>
+    </div>
+  </div>
+
+<script>
+/* ========= UTIL & STORE ========= */
+const STORE_KEY = 'salonpro.v1';
+const defaultData = {
+  ui:{
+    salonName:'Mi Salón',
+    welcomeTitle:'¡Bienvenid@!',
+    welcomeSub:'Gestiona tu salón desde aquí.',
+    colors:{
+      bg:'#0f0f12', top:'#111827', foot:'#111827', text:'#f6f7fb', btn:'#1f2937', accent:'#3b82f6'
+    },
+    btn:{ height:52, radius:12 },
+    bgImage:null,
+    logo:null
+  },
+  agenda:{ horaIni:'09:00', horaFin:'19:00', intervalo:30, msgWa:'¡Hola {nombre}! Tu cita es el {fecha} a las {hora} con {tecnica}. Cualquier cambio, responde este mensaje. 💇🏽‍♀️' },
+  calendar:{ nombre:'Mi Calendario' },
+  sheets:{ url:'https://docs.google.com/spreadsheets/d/1-MxlLqk6BLkYiThYros0F3DLCef0jd5tV-pUilMk3iM/edit' },
+  tecnicas:['General'],
+  servicios:[{nombre:'Corte', precio:25},{nombre:'Color', precio:60}],
+  usuarios:[{user:'admin', pass:'admin', role:'admin'}],
+  menu:[
+    {id:'agenda', label:'Agendar citas', icon:'🗓️'},
+    {id:'disponibles', label:'Ver fechas disponibles', icon:'📅'},
+    {id:'noshow', label:'Ver No show', icon:'⛔'},
+    {id:'reminders', label:'Enviar recordatorios (24h)', icon:'⏰'},
+    {id:'cobros', label:'Cobros & recibos', icon:'💳'},
+    {id:'rendimiento', label:'Rendimiento', icon:'📈', admin:true},
+    {id:'cuadre', label:'Hoja de cuadre (Sheets)', icon:'📄', admin:true},
+    {id:'config', label:'Configuración', icon:'⚙️', admin:true}
+  ],
+  citas:[], // {id, nombre, tel, tecnica, servicio, fecha, hora, notas, estado:'programada|no-show|completada'}
+  cobros:[], // {id, nombre, tel, fecha, hora, servicio, precio, metodo}
+  logins:[], // {user, at}
+  rendimiento:[] // calculado on-the-fly o acumulado
+};
+
+let db = load();
+function load(){
+  try { return JSON.parse(localStorage.getItem(STORE_KEY)) || structuredClone(defaultData);} catch(e){return structuredClone(defaultData);}
+}
+function save(){ localStorage.setItem(STORE_KEY, JSON.stringify(db)); renderAll(); }
+function uid(){ return Math.random().toString(36).slice(2,9)+Date.now().toString(36).slice(-4); }
+function toCSV(rows){
+  if(!rows.length) return '';
+  const cols = Object.keys(rows[0]);
+  const esc = v => ('"'+String(v??'').replaceAll('"','""')+'"');
+  return [cols.join(','), ...rows.map(r=>cols.map(c=>esc(r[c])).join(','))].join('\n');
+}
+function download(filename, text){
+  const a = document.createElement('a'); a.href=URL.createObjectURL(new Blob([text],{type:'text/plain'})); a.download=filename; a.click();
+}
+
+/* ========= SESSION / AUTH ========= */
+let session = { user:null, role:null };
+function login(u,p){
+  const found = db.usuarios.find(x=>x.user===u && x.pass===p);
+  if(found){
+    session.user=found.user; session.role=found.role;
+    db.logins.push({user:found.user, at:new Date().toISOString()}); save();
+    show('menuView');
+    buildMenu();
+    document.getElementById('whoami').textContent = `👤 ${session.user} (${session.role})`;
+  } else alert('Credenciales inválidas');
+}
+function logout(){ session={user:null, role:null}; show('homeView'); }
+
+/* ========= NAV ========= */
+function show(id){
+  // hide all views
+  for(const el of document.querySelectorAll('.container > .card')) el.classList.add('hide');
+  document.getElementById(id).classList.remove('hide');
+  if(id==='menuView') buildMenu();
+}
+function back(){ show('menuView'); }
+document.addEventListener('click', e=>{
+  if(e.target.matches('[data-back]')) back();
+});
+
+/* ========= RENDER UI ========= */
+function applyTheme(){
+  const root = document.documentElement;
+  root.style.setProperty('--color-bg', db.ui.colors.bg);
+  root.style.setProperty('--color-topbar', db.ui.colors.top);
+  root.style.setProperty('--color-footer', db.ui.colors.foot);
+  root.style.setProperty('--color-text', db.ui.colors.text);
+  root.style.setProperty('--color-btn', db.ui.colors.btn);
+  root.style.setProperty('--color-accent', db.ui.colors.accent);
+  root.style.setProperty('--btn-height', db.ui.btn.height+'px');
+  root.style.setProperty('--btn-radius', db.ui.btn.radius+'px');
+  root.style.setProperty('--bg-image', db.ui.bgImage ? `url(${db.ui.bgImage})` : 'none');
+  document.getElementById('salonName').textContent = db.ui.salonName;
+  document.getElementById('footSalon').textContent = db.ui.salonName;
+  document.getElementById('welcomeTitle').textContent = db.ui.welcomeTitle;
+  document.getElementById('welcomeSubtitle').textContent = db.ui.welcomeSub;
+  document.getElementById('linkSheets').href = db.sheets.url;
+  document.getElementById('openSheet').href = db.sheets.url;
+  document.getElementById('sheetUrlShown').textContent = db.sheets.url;
+  if(db.ui.logo){ document.getElementById('logoImg').src=db.ui.logo; document.getElementById('homeLogo').src=db.ui.logo; document.getElementById('logoPreview').src=db.ui.logo; document.getElementById('homeLogoPreview').src=db.ui.logo; }
+}
+function buildMenu(){
+  const list = document.getElementById('menuButtons'); list.innerHTML='';
+  const order = db.menu.slice(); // already ordered (editable en Configuración)
+  for(const item of order){
+    if(item.admin && session.role!=='admin') continue;
+    const b = document.createElement('button');
+    b.className='btn';
+    b.innerHTML = `<span class="icon">${item.icon||'🔘'}</span> ${item.label}`;
+    b.addEventListener('click', ()=>{
+      const map = {
+        agenda:'agendaView', disponibles:'disponiblesView', noshow:'noshowView', reminders:'remindersView',
+        cobros:'cobrosView', rendimiento:'rendimientoView', cuadre:'cuadreView', config:'configView'
+      };
+      show(map[item.id]); if(item.id==='agenda'){ renderCitas(); fillSelects(); } 
+      if(item.id==='disponibles'){ fillSelects(); } 
+      if(item.id==='cobros'){ fillCobros(); fillSelectServicios(); } 
+      if(item.id==='rendimiento'){ renderRendimiento(); } 
+      if(item.id==='cuadre'){ /* nada extra */ } 
+      if(item.id==='config'){ renderConfig(); }
+    });
+    list.appendChild(b);
+  }
+}
+function renderAll(){ applyTheme(); }
+
+/* ========= SELECTS / OPTIONS ========= */
+function fillSelects(){
+  const s1 = document.getElementById('citaTecnica'), s2 = document.getElementById('filtroTecnica'), s3=document.getElementById('dispoTecnica');
+  [s1,s2,s3].forEach(s=>{ s.innerHTML=''; db.tecnicas.forEach(t=>{ const o=document.createElement('option'); o.textContent=t; s.appendChild(o); }); const o=document.createElement('option'); if(s===s2){ o.textContent='(todas)'; s.insertBefore(o, s.firstChild);} });
+  const servSel = document.getElementById('citaServicio'); servSel.innerHTML=''; db.servicios.forEach(s=>{ const o=document.createElement('option'); o.value=s.nombre; o.textContent=`${s.nombre} ($${s.precio})`; servSel.appendChild(o); });
+}
+function fillSelectServicios(){
+  const s = document.getElementById('coServicio'); s.innerHTML=''; db.servicios.forEach(x=>{const o=document.createElement('option'); o.value=x.nombre; o.textContent=`${x.nombre} ($${x.precio})`; s.appendChild(o);});
+}
+
+/* ========= CITAS ========= */
+function sameDay(a,b){ return a===b; }
+function preventDuplicate({nombre,tel,tecnica,fecha,hora}){
+  return db.citas.some(c=>c.nombre.trim().toLowerCase()===nombre.trim().toLowerCase()
+    && c.tel.trim()===tel.trim()
+    && c.tecnica===tecnica && c.fecha===fecha && c.hora===hora);
+}
+function crearCita(){
+  const nombre = document.getElementById('citaNombre').value.trim();
+  const tel = document.getElementById('citaTel').value.trim();
+  const tecnica = document.getElementById('citaTecnica').value;
+  const servicio = document.getElementById('citaServicio').value;
+  const fecha = document.getElementById('citaFecha').value;
+  const hora = document.getElementById('citaHora').value;
+  const notas = document.getElementById('citaNotas').value.trim();
+  if(!nombre || !tel || !fecha || !hora){ alert('Completa nombre, teléfono, fecha y hora.'); return; }
+  if(preventDuplicate({nombre,tel,tecnica,fecha,hora})){ alert('Ya existe una cita igual (misma persona, técnica, día y hora).'); return; }
+  const id = uid();
+  db.citas.push({id,nombre,tel,tecnica,servicio,fecha,hora,notas,estado:'programada'}); save();
+  alert('Cita creada.');
+  renderCitas();
+}
+function renderCitas(list=db.citas){
+  const tbody = document.querySelector('#tablaCitas tbody'); tbody.innerHTML='';
+  const rows = [...list].sort((a,b)=> (a.fecha+a.hora).localeCompare(b.fecha+b.hora));
+  for(const c of rows){
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${c.fecha}</td><td>${c.hora}</td><td>${c.nombre}</td><td>${c.tel}</td>
+      <td>${c.tecnica}</td><td>${c.servicio}</td>
+      <td>
+        <select data-state="${c.id}">
+          <option ${c.estado==='programada'?'selected':''}>programada</option>
+          <option ${c.estado==='completada'?'selected':''}>completada</option>
+          <option ${c.estado==='no-show'?'selected':''}>no-show</option>
+        </select>
+      </td>
+      <td>
+        <button class="btn small" data-edit="${c.id}">Editar</button>
+        <button class="btn small danger" data-del="${c.id}">Eliminar</button>
+      </td>`;
+    tbody.appendChild(tr);
+  }
+}
+function filtrarCitas(){
+  const t = document.getElementById('filtroTexto').value.trim().toLowerCase();
+  const f = document.getElementById('filtroFecha').value;
+  const tec = document.getElementById('filtroTecnica').value;
+  const out = db.citas.filter(c=>{
+    let ok=true;
+    if(t) ok = ok && (c.nombre.toLowerCase().includes(t) || c.tel.includes(t));
+    if(f) ok = ok && c.fecha===f;
+    if(tec && tec!=='(todas)') ok = ok && c.tecnica===tec;
+    return ok;
+  });
+  renderCitas(out);
+}
+document.addEventListener('change', e=>{
+  if(e.target.matches('select[data-state]')){
+    const id = e.target.getAttribute('data-state');
+    const c = db.citas.find(x=>x.id===id); if(c){ c.estado=e.target.value; save(); renderNoShows(); }
+  }
+});
+document.addEventListener('click', e=>{
+  if(e.target.matches('button[data-del]')){
+    const id = e.target.getAttribute('data-del');
+    db.citas = db.citas.filter(x=>x.id!==id); save(); renderCitas();
+  }
+  if(e.target.matches('button[data-edit]')){
+    const id = e.target.getAttribute('data-edit');
+    const c = db.citas.find(x=>x.id===id); if(!c) return;
+    // Rápido re-agendar:
+    const nuevo = prompt('Nueva fecha (YYYY-MM-DD) y hora (HH:MM), separadas por espacio:', `${c.fecha} ${c.hora}`);
+    if(!nuevo) return;
+    const [nf,nh]=nuevo.split(' ');
+    if(!nf || !nh){ alert('Formato inválido'); return; }
+    // prevenir duplicado
+    if(preventDuplicate({nombre:c.nombre,tel:c.tel,tecnica:c.tecnica,fecha:nf,hora:nh})){ alert('Duplicado. Elige otra hora.'); return; }
+    c.fecha=nf; c.hora=nh; save(); renderCitas();
+  }
+});
+
+/* ========= DISPONIBLES ========= */
+function timeToMinutes(hm){ const [h,m]=hm.split(':').map(Number); return h*60+m; }
+function minutesToTime(min){ const h = String(Math.floor(min/60)).padStart(2,'0'); const m=String(min%60).padStart(2,'0'); return `${h}:${m}`; }
+function calcularDisponibles(){
+  const fecha = document.getElementById('dispoFecha').value;
+  const tecnica = document.getElementById('dispoTecnica').value;
+  const dur = parseInt(document.getElementById('dispoDuracion').value||'60',10);
+  if(!fecha){ alert('Selecciona una fecha.'); return; }
+  const ini = timeToMinutes(db.agenda.horaIni), fin=timeToMinutes(db.agenda.horaFin), step=db.agenda.intervalo;
+  // ocupados:
+  const occ = db.citas.filter(c=>c.fecha===fecha && c.tecnica===tecnica).map(c=>timeToMinutes(c.hora));
+  const slots = [];
+  for(let t=ini; t+dur<=fin; t+=step){
+    // marca ocupado si existe cita que arranca en t
+    const conflict = occ.includes(t);
+    if(!conflict) slots.push({hora:minutesToTime(t), hasta: minutesToTime(t+dur)});
+  }
+  const ul = document.getElementById('listaDisponibles'); ul.innerHTML='';
+  if(!slots.length){ ul.innerHTML='<div class="muted">Sin espacios disponibles.</div>'; return; }
+  for(const s of slots){
+    const div = document.createElement('div'); div.className='row';
+    div.innerHTML = `<div class="pill">🕘 ${s.hora} - ${s.hasta}</div> <button class="btn small">Usar este espacio</button>`;
+    div.querySelector('button').onclick = ()=>{
+      // saltar a agenda con fecha/hora preseleccionadas
+      show('agendaView'); document.getElementById('citaFecha').value=fecha; document.getElementById('citaHora').value=s.hora;
+      document.getElementById('citaTecnica').value=tecnica;
+    };
+    ul.appendChild(div);
+  }
+}
+
+/* ========= NO SHOW ========= */
+function renderNoShows(){
+  const list = db.citas.filter(c=>c.estado==='no-show').sort((a,b)=> (a.fecha+a.hora).localeCompare(b.fecha+b.hora));
+  const box = document.getElementById('listaNoShows'); box.innerHTML='';
+  if(!list.length){ box.innerHTML='<div class="muted">No hay no-shows.</div>'; return; }
+  for(const c of list){
+    const row = document.createElement('div'); row.className='row';
+    row.innerHTML = `<div class="pill">📅 ${c.fecha} ${c.hora}</div><div class="pill">👤 ${c.nombre}</div><div class="pill">📞 ${c.tel}</div>`;
+    box.appendChild(row);
+  }
+}
+
+/* ========= RECORDATORIOS 24h ========= */
+function generarMensajeWA(c){
+  const fecha = new Date(c.fecha+'T'+c.hora);
+  const fmtFecha = fecha.toLocaleDateString('es-PR',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  const fmtHora = c.hora;
+  return db.agenda.msgWa
+    .replaceAll('{nombre}', c.nombre)
+    .replaceAll('{fecha}', fmtFecha)
+    .replaceAll('{hora}', fmtHora)
+    .replaceAll('{tecnica}', c.tecnica);
+}
+function renderReminders(){
+  const now = new Date();
+  const in24 = new Date(now.getTime()+24*60*60*1000);
+  const list = db.citas.filter(c=>{
+    const dt = new Date(c.fecha+'T'+c.hora);
+    return dt>=now && dt<=in24 && c.estado==='programada';
+  }).sort((a,b)=> (a.fecha+a.hora).localeCompare(b.fecha+b.hora));
+  const box = document.getElementById('listaReminders'); box.innerHTML='';
+  if(!list.length){ box.innerHTML='<div class="muted">No hay recordatorios pendientes en las próximas 24h.</div>'; return; }
+  for(const c of list){
+    const msg = generarMensajeWA(c);
+    const url = `https://wa.me/${encodeURIComponent(c.tel)}?text=${encodeURIComponent(msg)}`;
+    const row = document.createElement('div'); row.className='row';
+    row.innerHTML = `<div class="pill">📅 ${c.fecha} ${c.hora}</div><div class="pill">👤 ${c.nombre}</div><a class="link-btn" target="_blank" href="${url}">Enviar WhatsApp</a>`;
+    box.appendChild(row);
+  }
+}
+
+/* ========= GOOGLE CALENDAR ========= */
+function toGCalLink({titulo, detalles, inicioISO, finISO}){
+  const base='https://calendar.google.com/calendar/render?action=TEMPLATE';
+  return `${base}&text=${encodeURIComponent(titulo)}&details=${encodeURIComponent(detalles||'')}&dates=${inicioISO}/${finISO}`;
+}
+function buildEventISO(fecha, hora, durMin=60){
+  // fechas sin TZ -> trata como local, Google admite formato local sin Z
+  const start = fecha.replaceAll('-','')+'T'+hora.replace(':','')+'00';
+  const [H,M] = hora.split(':').map(Number);
+  const dEnd = new Date(fecha+'T'+hora); dEnd.setMinutes(dEnd.getMinutes()+durMin);
+  const end = dEnd.toISOString().slice(0,19).replace(/[-:]/g,'').replace('T','T')+'Z';
+  return {inicio:start, fin:end};
+}
+
+/* ========= COBROS ========= */
+function guardarCobro(){
+  const nombre = document.getElementById('coNombre').value.trim();
+  const tel = document.getElementById('coTel').value.trim();
+  const fecha = document.getElementById('coFecha').value;
+  const hora = document.getElementById('coHora').value;
+  const servicio = document.getElementById('coServicio').value;
+  let precio = parseFloat(document.getElementById('coPrecio').value||'0');
+  const metodo = document.getElementById('coMetodo').value;
+  if(!nombre||!tel||!fecha||!hora||!servicio){ alert('Completa todos los campos.'); return; }
+  if(!precio){ const srv = db.servicios.find(s=>s.nombre===servicio); if(srv) precio=srv.precio; }
+  const id = uid();
+  db.cobros.push({id,nombre,tel,fecha,hora,servicio,precio,metodo}); save();
+  fillCobros();
+  // Enviar a Google Form / Sheets si el URL parece de Form
+  if(db.sheets.url.includes('forms.gle') || db.sheets.url.includes('forms.google.com')){
+    const params = new URLSearchParams({
+      nombre, telefono:tel, fecha, hora, servicio, metodo, total:precio
+    });
+    window.open(db.sheets.url + (db.sheets.url.includes('?')?'&':'?') + params.toString(), '_blank');
+  }
+  alert('Cobro guardado.');
+}
+function fillCobros(){
+  const tb = document.querySelector('#tablaCobros tbody'); tb.innerHTML='';
+  const rows = [...db.cobros].sort((a,b)=> (a.fecha+a.hora).localeCompare(b.fecha+b.hora));
+  for(const r of rows){
+    const tr=document.createElement('tr');
+    tr.innerHTML = `<td>${r.fecha}</td><td>${r.hora}</td><td>${r.nombre}</td><td>${r.tel}</td><td>${r.servicio}</td><td>${r.metodo}</td><td>$${Number(r.precio).toFixed(2)}</td>`;
+    tb.appendChild(tr);
+  }
+}
+function whatsappRecibo(){
+  const nombre = document.getElementById('coNombre').value.trim();
+  const tel = document.getElementById('coTel').value.trim();
+  const fecha = document.getElementById('coFecha').value;
+  const hora = document.getElementById('coHora').value;
+  const servicio = document.getElementById('coServicio').value;
+  const precio = Number(document.getElementById('coPrecio').value||0).toFixed(2);
+  if(!tel){ alert('Teléfono requerido'); return; }
+  const msg = `Recibo ${db.ui.salonName}%0A%0ACliente: ${nombre}%0AServicio: ${servicio}%0AFecha: ${fecha} ${hora}%0AMonto: $${precio}%0AMétodo: ${document.getElementById('coMetodo').value}%0A¡Gracias por su visita!`;
+  window.open(`https://wa.me/${encodeURIComponent(tel)}?text=${msg}`,'_blank');
+}
+
+/* ========= RENDIMIENTO ========= */
+function renderRendimiento(){
+  // Simple: sumar cobros por técnica detectada a partir de la cita más cercana (si coincide nombre+fecha)
+  const box = document.getElementById('rendimientoResumen'); box.innerHTML='';
+  const byTec = {};
+  for(const co of db.cobros){
+    // busca cita del mismo día para inferir técnica
+    const cita = db.citas.find(c=>c.nombre.toLowerCase()===co.nombre.toLowerCase() && c.fecha===co.fecha);
+    const tec = cita ? cita.tecnica : 'N/A';
+    byTec[tec] = (byTec[tec]||0) + Number(co.precio||0);
+  }
+  const total = Object.values(byTec).reduce((a,b)=>a+b,0);
+  if(!Object.keys(byTec).length){ box.innerHTML='<div class="muted">Sin datos aún.</div>'; return; }
+  for(const [tec,sum] of Object.entries(byTec)){
+    const row = document.createElement('div'); row.className='row';
+    row.innerHTML = `<div class="pill">✂️ ${tec}</div><div class="pill">$${sum.toFixed(2)}</div>`;
+    box.appendChild(row);
+  }
+  const div = document.createElement('div'); div.className='divider'; box.appendChild(div);
+  const tot = document.createElement('div'); tot.innerHTML = `<b>Total: $${total.toFixed(2)}</b>`; box.appendChild(tot);
+}
+
+/* ========= EXPORTS / BACKUPS ========= */
+function exportCitas(){ download('citas.csv', toCSV(db.citas)); }
+function exportNoShows(){ const rows = db.citas.filter(c=>c.estado==='no-show'); download('no-shows.csv', toCSV(rows)); }
+function exportCobros(){ download('cobros.csv', toCSV(db.cobros)); }
+function exportRendimiento(){
+  const now = new Date().toISOString();
+  const rows = [];
+  const byTec = {};
+  for(const co of db.cobros){
+    const cita = db.citas.find(c=>c.nombre.toLowerCase()===co.nombre.toLowerCase() && c.fecha===co.fecha);
+    const tec = cita ? cita.tecnica : 'N/A';
+    byTec[tec]=(byTec[tec]||0)+Number(co.precio||0);
+  }
+  for(const [tec,sum] of Object.entries(byTec)) rows.push({tecnica:tec, total:sum});
+  rows.push({tecnica:'TOTAL', total:Object.values(byTec).reduce((a,b)=>a+b,0)});
+  download('rendimiento.csv', toCSV(rows));
+}
+function exportLogin(){ download('logins.csv', toCSV(db.logins)); }
+function exportBackup(){ download('backup-salonpro.json', JSON.stringify(db,null,2)); }
+function importBackup(file){
+  const r = new FileReader();
+  r.onload = ()=>{ try{ db=JSON.parse(r.result); save(); alert('Backup importado.'); location.reload(); } catch(e){ alert('Archivo inválido.'); } };
+  r.readAsText(file);
+}
+function exportConfig(){
+  const cfg = {ui:db.ui, agenda:db.agenda, calendar:db.calendar, sheets:db.sheets, tecnicas:db.tecnicas, servicios:db.servicios, usuarios:db.usuarios, menu:db.menu};
+  download('config-salonpro.json', JSON.stringify(cfg,null,2));
+}
+function importConfig(file){
+  const r = new FileReader();
+  r.onload = ()=>{ try{ const cfg=JSON.parse(r.result);
+    db.ui=cfg.ui||db.ui; db.agenda=cfg.agenda||db.agenda; db.calendar=cfg.calendar||db.calendar; db.sheets=cfg.sheets||db.sheets;
+    db.tecnicas=cfg.tecnicas||db.tecnicas; db.servicios=cfg.servicios||db.servicios; db.usuarios=cfg.usuarios||db.usuarios; db.menu=cfg.menu||db.menu;
+    save(); alert('Configuración importada.'); location.reload();
+  } catch(e){ alert('Archivo inválido.'); } };
+  r.readAsText(file);
+}
+
+/* ========= CONFIG RENDER ========= */
+function renderConfig(){
+  // Marca & UI
+  document.getElementById('cfgSalonName').value = db.ui.salonName;
+  document.getElementById('cfgWelcomeTitle').value = db.ui.welcomeTitle;
+  document.getElementById('cfgWelcomeSub').value = db.ui.welcomeSub;
+  document.getElementById('colBg').value = db.ui.colors.bg;
+  document.getElementById('colTop').value = db.ui.colors.top;
+  document.getElementById('colFoot').value = db.ui.colors.foot;
+  document.getElementById('colText').value = db.ui.colors.text;
+  document.getElementById('colBtn').value = db.ui.colors.btn;
+  document.getElementById('colAccent').value = db.ui.colors.accent;
+  document.getElementById('btnHeight').value = db.ui.btn.height;
+  document.getElementById('btnRadius').value = db.ui.btn.radius;
+  // Agenda
+  document.getElementById('cfgHoraIni').value = db.agenda.horaIni;
+  document.getElementById('cfgHoraFin').value = db.agenda.horaFin;
+  document.getElementById('cfgIntervalo').value = db.agenda.intervalo;
+  document.getElementById('cfgMsgWa').value = db.agenda.msgWa;
+  // Sheets/Calendar
+  document.getElementById('cfgCalNombre').value = db.calendar.nombre;
+  document.getElementById('cfgSheetUrl').value = db.sheets.url;
+  // Listas
+  const tbox = document.getElementById('listaTecnicas'); tbox.innerHTML='';
+  db.tecnicas.forEach((t,i)=>{
+    const row = document.createElement('div'); row.className='row';
+    row.innerHTML = `<input value="${t}"><button class="btn small" data-del-tec="${i}">Eliminar</button>`;
+    row.querySelector('input').addEventListener('change', ev=>{ db.tecnicas[i]=ev.target.value; save(); });
+    tbox.appendChild(row);
+  });
+  const sbox = document.getElementById('listaServicios'); sbox.innerHTML='';
+  db.servicios.forEach((s,i)=>{
+    const row = document.createElement('div'); row.className='grid3';
+    row.innerHTML = `<input value="${s.nombre}"><input type="number" step="0.01" value="${s.precio}"><button class="btn small" data-del-srv="${i}">Eliminar</button>`;
+    const [in1,in2] = row.querySelectorAll('input');
+    in1.addEventListener('change', ev=>{ db.servicios[i].nombre=ev.target.value; save(); fillSelects(); fillSelectServicios(); });
+    in2.addEventListener('change', ev=>{ db.servicios[i].precio=parseFloat(ev.target.value||'0'); save(); fillSelects(); fillSelectServicios(); });
+    sbox.appendChild(row);
+  });
+  // Usuarios
+  const ubox = document.getElementById('listaUsuarios'); ubox.innerHTML='';
+  db.usuarios.forEach((u,i)=>{
+    const row = document.createElement('div'); row.className='grid3';
+    row.innerHTML = `<input value="${u.user}"><input value="${u.pass}"><select><option ${u.role==='admin'?'selected':''}>admin</option><option ${u.role==='regular'?'selected':''}>regular</option></select>`;
+    const [u1,u2,sel]=row.querySelectorAll('input,select');
+    u1.onchange = ev=>{ db.usuarios[i].user=ev.target.value; save(); };
+    u2.onchange = ev=>{ db.usuarios[i].pass=ev.target.value; save(); };
+    sel.onchange = ev=>{ db.usuarios[i].role=ev.target.value; save(); };
+    ubox.appendChild(row);
+  });
+  // Orden menú
+  const mbox = document.getElementById('menuOrder'); mbox.innerHTML='';
+  db.menu.forEach((m,i)=>{
+    const row = document.createElement('div'); row.className='drag';
+    row.draggable=true;
+    row.innerHTML = `${m.icon||'🔘'} ${m.label} ${m.admin?'<span class="badge">admin</span>':''}`;
+    row.addEventListener('dragstart', ev=>{ ev.dataTransfer.setData('text/plain', i); });
+    row.addEventListener('dragover', ev=>ev.preventDefault());
+    row.addEventListener('drop', ev=>{
+      ev.preventDefault();
+      const from = parseInt(ev.dataTransfer.getData('text/plain'),10);
+      const to = i;
+      const item = db.menu.splice(from,1)[0];
+      db.menu.splice(to,0,item); save(); renderConfig();
+    });
+    mbox.appendChild(row);
+  });
+}
+
+/* ========= INIT & EVENTS ========= */
+document.getElementById('year').textContent = new Date().getFullYear();
+applyTheme();
+document.getElementById('btnDashboard').onclick = ()=> show(session.user? 'menuView':'loginView');
+document.getElementById('btnGoLogin').onclick = ()=> show('loginView');
+document.getElementById('btnLogin').onclick = ()=> login(document.getElementById('loginUser').value, document.getElementById('loginPass').value);
+document.getElementById('btnBackHome').onclick = ()=> show('homeView');
+document.getElementById('btnLogout').onclick = ()=>{ logout(); };
+
+document.getElementById('btnCrearCita').onclick = crearCita;
+document.getElementById('btnFiltrar').onclick = filtrarCitas;
+document.getElementById('btnCalcularDisponibles').onclick = calcularDisponibles;
+document.getElementById('btnExportCitas').onclick = exportCitas;
+document.getElementById('btnExportNoShows').onclick = exportNoShows;
+document.getElementById('btnExportCobros').onclick = exportCobros;
+document.getElementById('btnWhatsAppRecibo').onclick = whatsappRecibo;
+document.getElementById('btnGuardarCobro').onclick = guardarCobro;
+document.getElementById('btnExportRendimiento').onclick = exportRendimiento;
+
+document.getElementById('btnGoogleCal').onclick = ()=>{
+  const nombre = document.getElementById('citaNombre').value.trim();
+  const tel = document.getElementById('citaTel').value.trim();
+  const tecnica = document.getElementById('citaTecnica').value;
+  const servicio = document.getElementById('citaServicio').value;
+  const fecha = document.getElementById('citaFecha').value;
+  const hora = document.getElementById('citaHora').value;
+  if(!nombre||!fecha||!hora){ alert('Completa nombre, fecha y hora'); return; }
+  const {inicio, fin} = buildEventISO(fecha, hora, 60);
+  const url = toGCalLink({
+    titulo:`${servicio} – ${nombre}`,
+    detalles:`Cliente: ${nombre}\nTel: ${tel}\nTécnica: ${tecnica}\nServicio: ${servicio}`,
+    inicioISO:inicio, finISO:fin
+  });
+  window.open(url, '_blank');
+};
+document.getElementById('btnWhatsAppCita').onclick = ()=>{
+  const nombre = document.getElementById('citaNombre').value.trim();
+  const tel = document.getElementById('citaTel').value.trim();
+  const tecnica = document.getElementById('citaTecnica').value;
+  const fecha = document.getElementById('citaFecha').value;
+  const hora = document.getElementById('citaHora').value;
+  if(!tel||!nombre||!fecha||!hora){ alert('Completa nombre, teléfono, fecha y hora'); return; }
+  const msg = db.agenda.msgWa.replaceAll('{nombre}',nombre).replaceAll('{fecha}', new Date(fecha+'T'+hora).toLocaleDateString('es-PR', {weekday:'long',year:'numeric',month:'long',day:'numeric'})).replaceAll('{hora}',hora).replaceAll('{tecnica}',tecnica);
+  window.open(`https://wa.me/${encodeURIComponent(tel)}?text=${encodeURIComponent(msg)}`,'_blank');
+};
+
+document.getElementById('btnExportLogin')?.addEventListener('click', exportLogin);
+
+/* Recordatorios view: render on open */
+document.getElementById('btnDashboard').addEventListener('click', ()=>{ if(session.user) renderReminders(); });
+document.getElementById('btnExportConfig').onclick = exportConfig;
+document.getElementById('importConfigFile').onchange = (e)=> importConfig(e.target.files[0]);
+document.getElementById('btnExportBackup').onclick = exportBackup;
+document.getElementById('importBackupFile').onchange = (e)=> importBackup(e.target.files[0]);
+
+// Config updates
+['cfgSalonName','cfgWelcomeTitle','cfgWelcomeSub'].forEach(id=>{
+  document.getElementById(id).addEventListener('change', e=>{
+    db.ui[id==='cfgSalonName'?'salonName':id==='cfgWelcomeTitle'?'welcomeTitle':'welcomeSub']=e.target.value; save();
+  });
+});
+[['colBg','bg'],['colTop','top'],['colFoot','foot'],['colText','text'],['colBtn','btn'],['colAccent','accent']].forEach(([id,key])=>{
+  document.getElementById(id).addEventListener('change', e=>{ db.ui.colors[key]=e.target.value; save(); });
+});
+document.getElementById('btnHeight').addEventListener('change', e=>{ db.ui.btn.height=parseInt(e.target.value,10)||52; save(); });
+document.getElementById('btnRadius').addEventListener('change', e=>{ db.ui.btn.radius=parseInt(e.target.value,10)||12; save(); });
+
+['cfgHoraIni','cfgHoraFin','cfgIntervalo','cfgMsgWa'].forEach(id=>{
+  document.getElementById(id).addEventListener('change', e=>{
+    const map={cfgHoraIni:'horaIni',cfgHoraFin:'horaFin',cfgIntervalo:'intervalo',cfgMsgWa:'msgWa'};
+    db.agenda[map[id]] = (id==='cfgIntervalo'? parseInt(e.target.value,10) : e.target.value); save();
+  });
+});
+document.getElementById('cfgCalNombre').addEventListener('change', e=>{ db.calendar.nombre=e.target.value; save(); });
+document.getElementById('cfgSheetUrl').addEventListener('change', e=>{ db.sheets.url=e.target.value; save(); applyTheme(); });
+
+document.getElementById('btnAddTecnica').onclick = ()=>{ const v=document.getElementById('newTecnica').value.trim(); if(!v) return; db.tecnicas.push(v); document.getElementById('newTecnica').value=''; save(); renderConfig(); };
+document.addEventListener('click', e=>{
+  if(e.target.matches('[data-del-tec]')){ const i=Number(e.target.getAttribute('data-del-tec')); db.tecnicas.splice(i,1); save(); renderConfig(); }
+  if(e.target.matches('[data-del-srv]')){ const i=Number(e.target.getAttribute('data-del-srv')); db.servicios.splice(i,1); save(); renderConfig(); fillSelects(); fillSelectServicios(); }
+});
+document.getElementById('btnAddServicio').onclick = ()=>{
+  const n=document.getElementById('newServicio').value.trim(), p=parseFloat(document.getElementById('newPrecio').value||'0');
+  if(!n) return; db.servicios.push({nombre:n, precio:p||0}); document.getElementById('newServicio').value=''; document.getElementById('newPrecio').value=''; save(); renderConfig(); fillSelects(); fillSelectServicios();
+};
+document.getElementById('btnAddUser').onclick = ()=>{
+  const u=document.getElementById('newUser').value.trim(), p=document.getElementById('newPass').value.trim(), r=document.getElementById('newRole').value;
+  if(!u||!p) return; db.usuarios.push({user:u, pass:p, role:r}); document.getElementById('newUser').value=''; document.getElementById('newPass').value=''; save(); renderConfig();
+};
+
+// Logo & fondo
+function fileToDataURL(file, cb){
+  const r = new FileReader(); r.onload = ()=>cb(r.result); r.readAsDataURL(file);
+}
+document.getElementById('logoInput').onchange = (e)=>{ const f=e.target.files[0]; if(!f) return; fileToDataURL(f, data=>{ db.ui.logo=data; save(); applyTheme(); }); };
+document.getElementById('bgInput').onchange = (e)=>{ const f=e.target.files[0]; if(!f) return; fileToDataURL(f, data=>{ db.ui.bgImage=data; save(); applyTheme(); }); };
+
+// Export específicos
+document.getElementById('btnExportCitas').addEventListener('click', ()=>{
+  download('historial-citas.csv', toCSV(db.citas));
+});
+document.getElementById('btnExportNoShows').addEventListener('click', ()=>{
+  const ns = db.citas.filter(c=>c.estado==='no-show'); download('historial-no-shows.csv', toCSV(ns));
+});
+document.getElementById('btnExportCobros').addEventListener('click', ()=>{
+  download('historial-cobros.csv', toCSV(db.cobros));
+});
+
+// Quick backups (etiqueta en nombre)
+document.querySelectorAll('[data-quickbackup]').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    const tag = btn.getAttribute('data-quickbackup');
+    download(`backup-${tag}-${new Date().toISOString().slice(0,10)}.json`, JSON.stringify(db,null,2));
+  });
+});
+
+// Recordatorios view render
+document.querySelector('#remindersView .top-actions [data-back]').addEventListener('click', ()=>{});
+document.getElementById('btnDashboard').addEventListener('click', ()=>{ renderReminders(); });
+
+// Inicial
+fillSelects(); fillSelectServicios(); renderNoShows(); renderAll();
+document.getElementById('year').textContent = new Date().getFullYear();
+
+/* ====== RESTRICCIÓN DE ACCESO (ocultar en menú según rol) ====== */
+// Ya controlado en buildMenu() con item.admin && role!='admin'
+
+/* ====== EXTRAS ====== */
+document.getElementById('btnExportCitas').insertAdjacentHTML('afterend', '<button class="btn" id="btnExportLogins">Exportar historial de login (CSV)</button>');
+document.getElementById('btnExportLogins').onclick = exportLogin;
+
+// Disponibles y reminders se actualizan al abrir su vista
+document.getElementById('btnCalcularDisponibles').addEventListener('click', calcularDisponibles);
+document.getElementById('btnDashboard').addEventListener('click', ()=>{ if(session.user) renderReminders(); });
+
+// WhatsApp recordatorios vista
+document.querySelector('[data-back]');
+
+/* ====== “Enviar recordatorios 24h antes” ====== */
+document.getElementById('btnDashboard').addEventListener('click', ()=>{ /* placeholder already */ });
+
+/* ====== Botón Google Calendar directo desde Agenda ====== */
+
+/* ====== Botones del menú se construyen dinámicamente ====== */
+
+/* ====== Exportar historial (ya arriba) ====== */
+</script>
+
+<script>
+// PWA register
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=>{ navigator.serviceWorker.register('./service-worker.js'); });
+}
+</script>
+</body>
+</html>
